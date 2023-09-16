@@ -539,8 +539,7 @@ public class SwerveDrive {
      *
      * @param gyro expected gyroscope angle.
      */
-    public void setGyro(Rotation3d gyro)
-    {
+    public void setGyro(Rotation3d gyro) {
         imu.setOffset(imu.getRawRotation3d().minus(gyro));
     }
 

@@ -46,6 +46,7 @@ public class Manual extends RobotHardware {
     @Override
     public void start() {
         super.start();
+        stateMachine.changeState(Executive.StateMachine.StateType.DRIVE, new Drive_Manual());
     }
 
     @Override

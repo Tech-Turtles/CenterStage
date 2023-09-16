@@ -51,7 +51,9 @@ public class RobotHardware extends OpMode {
 
         for(RobotConfiguration robotConfiguration : RobotConfiguration.values()) {
             HardwareDevice device = robotConfiguration.getAsHardwareDevice();
-            device.initialize(hardwareMap.get(device.getDeviceClass(), device.getConfigName()));
+            try {
+                device.initialize(hardwareMap.get(device.getDeviceClass(), device.getConfigName()));
+            } catch (IllegalArgumentException ignore) {}
         }
 
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
@@ -105,8 +107,6 @@ public class RobotHardware extends OpMode {
         primary = new Controller(gamepad1);
         secondary = new Controller(gamepad2);
 
-        if(packet != null)
-            dashboard.sendTelemetryPacket(packet);
         period.reset();
     }
 
@@ -141,10 +141,9 @@ public class RobotHardware extends OpMode {
     public void start() {
         super.start();
 
-        if(packet != null) {
-            dashboard.sendTelemetryPacket(packet);
+        if(packet != null)
             packet = new TelemetryPacket();
-        }
+
 
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
         RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
