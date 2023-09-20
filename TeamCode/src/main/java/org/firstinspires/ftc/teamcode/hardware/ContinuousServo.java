@@ -16,6 +16,7 @@ public class ContinuousServo extends HardwareDevice {
     private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 10.0);
     private NanoClock clock;
     private AbsoluteEncoder encoder = null;
+    private double velocityEstimate;
     private double lastPosition;
     private double lastUpdateTime;
 
@@ -113,13 +114,8 @@ public class ContinuousServo extends HardwareDevice {
     }
 
     public double getVelocity() {
-        double currentPosition = getPosition();
-        double currentTime = clock.seconds();
-        double dt = currentTime - lastUpdateTime;
-        double velocityEstimate = (currentPosition - lastPosition) / dt;
-        lastPosition = currentPosition;
-        lastUpdateTime = currentTime;
-        return velocityEstimate;
+        if(encoder == null || encoder.getStatus().equals(HardwareStatus.MISSING)) return 0.0;
+        return encoder.getVelocity();
     }
 
     public double getPosition() {

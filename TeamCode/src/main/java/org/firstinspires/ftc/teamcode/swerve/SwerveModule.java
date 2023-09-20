@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.swerve;
 
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.hardware.AbsoluteEncoder;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
@@ -109,8 +110,8 @@ public class SwerveModule {
 
         // Prevent module rotation if angle is the same as the previous angle.
         if (desiredState.angle != lastState.angle) {
-            double moduleFF = desiredState.omegaRadPerSecond * configuration.moduleSteerFFCL;
-            angleServo.setReference(desiredState.angle.getDegrees(), moduleFF);
+//            double moduleFF = desiredState.omegaRadPerSecond * configuration.moduleSteerFFCL;
+            angleServo.setReference(desiredState.angle.getDegrees(), 0.0);
         } else {
             angleServo.setPower(0.0);
         }
@@ -137,7 +138,7 @@ public class SwerveModule {
         double     velocity;
         Rotation2d azimuth;
         double     omega;
-        velocity = driveMotor.getVelocity();
+        velocity = driveMotor.getVelocity() / RobotConstants.DRIVE_TICKS_PER_METER;
         azimuth = Rotation2d.fromDegrees(angleServo.getPosition());
         omega = Math.toRadians(angleServo.getVelocity());
         return new SwerveModuleState2(velocity, azimuth, omega);

@@ -46,6 +46,7 @@ public class IMU extends HardwareDevice {
     private Rotation3d current = new Rotation3d();
 
     public void update() {
+        if(getStatus().equals(HardwareStatus.MISSING)) return;
         org.firstinspires.ftc.robotcore.external.navigation.Quaternion q = device.getQuaternionOrientation();
         current = new Rotation3d(new Quaternion(q.w, q.x, q.y, q.z));
     }

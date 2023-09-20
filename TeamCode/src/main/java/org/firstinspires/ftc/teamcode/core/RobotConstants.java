@@ -17,4 +17,10 @@ public final class RobotConstants {
 
     public static final PwmControl.PwmRange AXON_PWM =
             new PwmControl.PwmRange(510, 2490, 5000);
+
+    public static final int DRIVE_TICKS_PER_METER = 1230;
+    // units m/s
+    public static final double SWERVE_MAX_SPEED = 2.2;
+    // units m/s
+    public static final double SWERVE_PRECISION_SPEED = 1.0;
 }

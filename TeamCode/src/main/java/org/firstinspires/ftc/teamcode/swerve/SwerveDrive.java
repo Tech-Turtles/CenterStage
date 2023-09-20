@@ -66,7 +66,7 @@ public class SwerveDrive {
      * Correct chassis velocity in {@link SwerveDrive#drive(Translation2d, double, boolean, boolean)} using 254's
      * correction.
      */
-    public  boolean             chassisVelocityCorrection    = true;
+    public  boolean             chassisVelocityCorrection    = false;
     /**
      * Swerve IMU device for sensing the heading of the robot.
      */

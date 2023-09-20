@@ -50,19 +50,19 @@ public enum RobotConfiguration {
             .setType(MotorTypes.DRIVE)
     ),
     ABSOLUTE_FRONT_LEFT(new AbsoluteEncoder("Front Left Encoder")
-            .zero(342.0)
+            .zero(158.5)
             .setInverted(false)
     ),
     ABSOLUTE_FRONT_RIGHT(new AbsoluteEncoder("Front Right Encoder")
-            .zero(302.0)
+            .zero(121.0)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_LEFT(new AbsoluteEncoder("Back Left Encoder")
-            .zero(130.0)
+            .zero(311.2)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_RIGHT(new AbsoluteEncoder("Back Right Encoder")
-            .zero(81.0)
+            .zero(78.0)
             .setInverted(false)
     ),
     ANGLE_FRONT_LEFT(new ContinuousServo("Front Left Angle")

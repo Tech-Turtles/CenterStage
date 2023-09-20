@@ -33,7 +33,7 @@ public class RobotHardware extends OpMode {
     // Controller objects that act as a more intuitive wrapper for the FTC gamepad class.
     public Controller primary, secondary;
     private FtcDashboard dashboard;
-    public TelemetryPacket packet;
+    public static TelemetryPacket packet;
     //ToDo Save last position measured by robot, so it can transfer between OpModes
     public static Pose2d lastPosition = new Pose2d(0,0,0);
     protected SwerveControllerConfiguration swerveControllerConfiguration;
@@ -87,12 +87,12 @@ public class RobotHardware extends OpMode {
                 RobotConfiguration.DRIVE_BACK_RIGHT.getAsMotor(),
                 RobotConfiguration.ANGLE_BACK_RIGHT.getAsContinuousServo(),
                 RobotConfiguration.ABSOLUTE_BACK_RIGHT.getAsAbsoluteEncoder(),
-                -0.1778, -0.1778, new PIDFConfig(0.009,0.0),
+                -0.1778, -0.1778, new PIDFConfig(0.008,0.0),
                 new PIDFConfig(0.08, 0.0), 2.2, SWERVE_MODULE_PHYSICAL_CHARACTERISTICS, "BackRight"
         );
 
         SwerveDriveConfiguration swerveDriveConfiguration = new SwerveDriveConfiguration(
-                new SwerveModuleConfiguration[]{front_left, back_left, back_right, front_right},
+                new SwerveModuleConfiguration[]{front_left, front_right, back_left, back_right},
                 RobotConfiguration.IMU.getAsIMU(), 2.2, false);
 
         swerveControllerConfiguration = new SwerveControllerConfiguration(

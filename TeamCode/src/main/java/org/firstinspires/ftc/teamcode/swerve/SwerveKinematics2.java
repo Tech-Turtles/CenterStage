@@ -212,7 +212,11 @@ public class SwerveKinematics2 extends SwerveDriveKinematics
             for (int i = 0; i < m_numModules; i++)
             {
                 m_inverseKinematics.setRow(
-                        i * 2, 0, /* Start Data */ 1, 0, -m_modules[i].getY() + centerOfRotationMeters.getY());
+                        i * 2,
+                        0, /* Start Data */
+                        1,
+                        0,
+                        -m_modules[i].getY() + centerOfRotationMeters.getY());
                 m_inverseKinematics.setRow(
                         i * 2 + 1,
                         0, /* Start Data */
