@@ -16,7 +16,7 @@ public class Motor extends HardwareDevice {
     private DcMotor.ZeroPowerBehavior zeroPowerBehavior = DcMotor.ZeroPowerBehavior.BRAKE;
     private DcMotor.RunMode runMode = DcMotor.RunMode.RUN_WITHOUT_ENCODER;
     private MotorTypes type = MotorTypes.OTHER;
-    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 10.0);
+    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 0.01);
     private double lastPower;
     private int offset;
 

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.swerve;
 
+import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
+
 import org.firstinspires.ftc.teamcode.hardware.IMU;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveControllerConfiguration;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveDriveConfiguration;
@@ -43,21 +45,22 @@ public class SwerveDrive {
     /**
      * Swerve modules.
      */
-    private final SwerveModule[]           swerveModules;
+    private final SwerveModule[] swerveModules;
     /**
      * Swerve controller for controlling heading of the robot.
      */
-    public        SwerveController         swerveController;
+    public SwerveController swerveController;
     /**
      * Trustworthiness of the internal model of how motors should be moving Measured in expected standard deviation
      * (meters of position and degrees of rotation)
      */
-    public Matrix<N3, N1> stateStdDevs                 = VecBuilder.fill(0.1, 0.1, 0.1);
+    public Matrix<N3, N1> stateStdDevs = VecBuilder.fill(0.1, 0.1, 0.1);
     /**
      * Trustworthiness of the vision system Measured in expected standard deviation (meters of position and degrees of
      * rotation)
      */
-    public        Matrix<N3, N1>           visionMeasurementStdDevs     = VecBuilder.fill(0.9, 0.9, 0.9);
+    public Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9);
+    public final ThreeTrackingWheelLocalizer odometry;
     /**
      * Invert odometry readings of drive motor positions, used as a patch for debugging currently.
      */
@@ -77,7 +80,7 @@ public class SwerveDrive {
     private double              lastHeadingRadians           = 0;
 
     /**
-     * Creates a new swerve drivebase subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
+     * Creates a new swerve drive-base subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
      * {@link SwerveDrive#setRawModuleStates} method. The {@link SwerveDrive#drive} method incorporates kinematics-- it
      * takes a translation and rotation, as well as parameters for field-centric and closed-loop velocity control.
      * {@link SwerveDrive#setRawModuleStates} takes a list of SwerveModuleStates and directly passes them to the modules.
@@ -97,8 +100,7 @@ public class SwerveDrive {
         this.imu = config.imu;
 
         this.swerveModules = config.modules;
-
-        //    odometry = new SwerveDriveOdometry(kinematics, getYaw(), getModulePositions());
+        this.odometry = new org.firstinspires.ftc.teamcode.swerve.odometry.ThreeTrackingWheelLocalizer();
 //        swerveDrivePoseEstimator =
 //                new SwervePoseEstimator2(
 //                        kinematics,
@@ -112,15 +114,15 @@ public class SwerveDrive {
     }
 
     /**
-     * The primary method for controlling the drivebase. Takes a Translation2d and a rotation rate, and calculates and
+     * The primary method for controlling the drive-base. Takes a Translation2d and a rotation rate, and calculates and
      * commands module states accordingly. Can use either open-loop or closed-loop velocity control for the wheel
      * velocities. Also has field- and robot-relative modes, which affect how the translation vector is used. This method
      * defaults to no heading correction.
      *
      * @param translation   {@link Translation2d} that is the commanded linear velocity of the robot, in meters per
-     *                      second. In robot-relative mode, positive x is torwards the bow (front) and positive y is
-     *                      torwards port (left). In field-relative mode, positive x is away from the alliance wall (field
-     *                      North) and positive y is torwards the left wall when looking through the driver station glass
+     *                      second. In robot-relative mode, positive x is towards the bow (front) and positive y is
+     *                      towards port (left). In field-relative mode, positive x is away from the alliance wall (field
+     *                      North) and positive y is towards the left wall when looking through the driver station glass
      *                      (field West).
      * @param rotation      Robot angular rate, in radians per second. CCW positive. Unaffected by field/robot
      *                      relativity.
@@ -133,14 +135,14 @@ public class SwerveDrive {
     }
 
     /**
-     * The primary method for controlling the drivebase. Takes a Translation2d and a rotation rate, and calculates and
+     * The primary method for controlling the drive-base. Takes a Translation2d and a rotation rate, and calculates and
      * commands module states accordingly. Can use either open-loop or closed-loop velocity control for the wheel
      * velocities. Also has field- and robot-relative modes, which affect how the translation vector is used.
      *
      * @param translation       {@link Translation2d} that is the commanded linear velocity of the robot, in meters per
-     *                          second. In robot-relative mode, positive x is torwards the bow (front) and positive y is
-     *                          torwards port (left). In field-relative mode, positive x is away from the alliance wall
-     *                          (field North) and positive y is torwards the left wall when looking through the driver
+     *                          second. In robot-relative mode, positive x is towards the bow (front) and positive y is
+     *                          towards port (left). In field-relative mode, positive x is away from the alliance wall
+     *                          (field North) and positive y is towards the left wall when looking through the driver
      *                          station glass (field West).
      * @param rotation          Robot angular rate, in radians per second. CCW positive. Unaffected by field/robot
      *                          relativity.
@@ -245,6 +247,16 @@ public class SwerveDrive {
     }
 
     /**
+     * Set the module states (azimuth and velocity) directly. Used primarily for auto paths.
+     *
+     * @param desiredStates A list of SwerveModuleStates to send to the modules.
+     */
+    public void setModuleStates(SwerveModuleState2[] desiredStates)
+    {
+        setModuleStates(desiredStates, true);
+    }
+
+    /**
      * Set chassis speeds with closed-loop velocity control and second order kinematics.
      *
      * @param chassisSpeeds Chassis speeds to set.
@@ -259,8 +271,9 @@ public class SwerveDrive {
      * @return The robot's pose
      */
     public Pose2d getPose() {
-//        return swerveDrivePoseEstimator.getEstimatedPosition();
-        return new Pose2d();
+        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
+        return new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
+                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY()));
     }
 
     /**
@@ -294,6 +307,7 @@ public class SwerveDrive {
      * @param pose The pose to set the odometry to
      */
     public void resetOdometry(Pose2d pose) {
+        odometry.setPoseEstimate(new com.acmerobotics.roadrunner.geometry.Pose2d(pose.getX(), pose.getY(), pose.getRotation().getRadians()));
 //        swerveDrivePoseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
     }
 
@@ -315,7 +329,7 @@ public class SwerveDrive {
      * Gets the current module positions (azimuth and wheel position (meters)). Inverts the distance from each module if
      * {@link #invertOdometry} is true.
      *
-     * @return A list of SwerveModulePositions containg the current module positions
+     * @return A list of SwerveModulePositions containing the current module positions
      */
     public SwerveModulePosition[] getModulePositions() {
         SwerveModulePosition[] positions =
@@ -481,6 +495,7 @@ public class SwerveDrive {
      */
     public void updateOdometry() {
         // Update odometry
+        odometry.update();
 //        swerveDrivePoseEstimator.update(getYaw(), getPitch(), getRoll(), getModulePositions());
     }
 
@@ -603,5 +618,4 @@ public class SwerveDrive {
     public void disableSecondOrderKinematics() {
         enableSecondOrderKinematics(0);
     }
-
 }

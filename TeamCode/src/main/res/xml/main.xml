@@ -21,4 +21,5 @@
             <AnalogInput                name="Back Right Encoder"   port="2" />
         </LynxModule>
     </LynxUsbDevice>
+    <Webcam name="Webcam 1" serialNumber="6F22D62F" />
 </Robot>

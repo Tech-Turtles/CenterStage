@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import com.acmerobotics.roadrunner.util.Angle;
 import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 
@@ -12,7 +11,7 @@ public class AbsoluteEncoder extends HardwareDevice {
 
     public static final double DEFAULT_RANGE = 3.3;
     private AnalogInput device;
-    private double analogRange;
+    private double analogRange = DEFAULT_RANGE;
     private double offset;
     private boolean inverted;
     private NanoClock clock;
@@ -31,10 +30,6 @@ public class AbsoluteEncoder extends HardwareDevice {
         }
 
         this.device = (AnalogInput) device;
-
-        analogRange = DEFAULT_RANGE;
-        offset = 0;
-        inverted = false;
 
         this.clock = NanoClock.system();
 

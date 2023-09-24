@@ -1,13 +1,17 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
+import org.firstinspires.ftc.teamcode.core.AutonomousStateContext;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.StartPosition;
 
-;
-
-
+/**
+ * Base autonomous class that holds the autonomous OpModes for each starting location.
+ * Responsible for initializing the state-machine with the correct starting location & color.
+ * Updates the state-machine and outputs the current state for each
+ * {@link org.firstinspires.ftc.teamcode.utility.autonomous.Executive.StateMachine.StateType}
+ */
 public class Autonomous extends RobotHardware {
 
     public static AllianceColor robotColor = AllianceColor.RED;
@@ -23,19 +27,19 @@ public class Autonomous extends RobotHardware {
     }
 
     @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Right", group="A")
-    public static class AutoRedFar extends Autonomous {
+    public static class AutoRedBackBoard extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.RED;
-            robotStartPos = StartPosition.FAR;
+            robotStartPos = StartPosition.BACK_BOARD;
             super.init();
         }
     }
 
     @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Left", group="B")
-    public static class AutoBlueFar extends Autonomous {
+    public static class AutoBlueBackBoard extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.BLUE;
-            robotStartPos = StartPosition.FAR;
+            robotStartPos = StartPosition.BACK_BOARD;
             super.init();
         }
     }
@@ -52,7 +56,7 @@ public class Autonomous extends RobotHardware {
     @Override
     public void init() {
         super.init();
-        robotStateContext = new RobotStateContext(this, robotColor, robotStartPos);
+        robotStateContext = new AutonomousStateContext(this, robotColor, robotStartPos);
         robotStateContext.init();
     }
 

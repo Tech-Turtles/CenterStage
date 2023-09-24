@@ -18,89 +18,129 @@ import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 
 public enum RobotConfiguration {
-    IMU(new IMU("IMU 1")),
-    CONTROL_HUB(new ExpansionHub("Expansion Hub 173")
+    IMU(
+            new IMU("IMU 1")
+    ),
+    CONTROL_HUB(
+            new ExpansionHub("Expansion Hub 173")
             .configureBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
     ),
-    EXPANSION_HUB(new ExpansionHub("Expansion Hub 2")
+    EXPANSION_HUB(
+            new ExpansionHub("Expansion Hub 2")
             .configureBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
     ),
-    DRIVE_FRONT_LEFT(new Motor("Front Left Drive")
+    DRIVE_FRONT_LEFT(
+            new Motor("Front Left Drive")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
-    DRIVE_FRONT_RIGHT(new Motor("Front Right Drive")
+    DRIVE_FRONT_RIGHT(
+            new Motor("Front Right Drive")
             .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
-    DRIVE_BACK_LEFT(new Motor("Back Left Drive")
+    DRIVE_BACK_LEFT(
+            new Motor("Back Left Drive")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
-    DRIVE_BACK_RIGHT(new Motor("Back Right Drive")
+    DRIVE_BACK_RIGHT(
+            new Motor("Back Right Drive")
             .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
-    ABSOLUTE_FRONT_LEFT(new AbsoluteEncoder("Front Left Encoder")
+    ABSOLUTE_FRONT_LEFT(
+            new AbsoluteEncoder("Front Left Encoder")
             .zero(158.5)
             .setInverted(false)
     ),
-    ABSOLUTE_FRONT_RIGHT(new AbsoluteEncoder("Front Right Encoder")
+    ABSOLUTE_FRONT_RIGHT(
+            new AbsoluteEncoder("Front Right Encoder")
             .zero(121.0)
             .setInverted(false)
     ),
-    ABSOLUTE_BACK_LEFT(new AbsoluteEncoder("Back Left Encoder")
+    ABSOLUTE_BACK_LEFT(
+            new AbsoluteEncoder("Back Left Encoder")
             .zero(311.2)
             .setInverted(false)
     ),
-    ABSOLUTE_BACK_RIGHT(new AbsoluteEncoder("Back Right Encoder")
+    ABSOLUTE_BACK_RIGHT(
+            new AbsoluteEncoder("Back Right Encoder")
             .zero(78.0)
             .setInverted(false)
     ),
-    ANGLE_FRONT_LEFT(new ContinuousServo("Front Left Angle")
+    ANGLE_FRONT_LEFT(
+            new ContinuousServo("Front Left Angle")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
             .configurePIDF(0.006, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_FRONT_LEFT.getAsAbsoluteEncoder())
     ),
-    ANGLE_FRONT_RIGHT(new ContinuousServo("Front Right Angle")
+    ANGLE_FRONT_RIGHT(
+            new ContinuousServo("Front Right Angle")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
             .configurePIDF(0.006, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_FRONT_RIGHT.getAsAbsoluteEncoder())
     ),
-    ANGLE_BACK_LEFT(new ContinuousServo("Back Left Angle")
+    ANGLE_BACK_LEFT(
+            new ContinuousServo("Back Left Angle")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
             .configurePIDF(0.008, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_BACK_LEFT.getAsAbsoluteEncoder())
     ),
-    ANGLE_BACK_RIGHT(new ContinuousServo("Back Right Angle")
+    ANGLE_BACK_RIGHT(
+            new ContinuousServo("Back Right Angle")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
             .configurePIDF(0.009, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_BACK_RIGHT.getAsAbsoluteEncoder())
     ),
-    ODOMETRY_PARALLEL_LEFT(new Encoder("Front Left Drive")),
-    ODOMETRY_PARALLEL_RIGHT(new Encoder("Front Right Drive")
+    ODOMETRY_PARALLEL_LEFT(
+            new Encoder("Front Left Drive")),
+    ODOMETRY_PARALLEL_RIGHT(
+            new Encoder("Front Right Drive")
             .setDirection(Encoder.Direction.REVERSE)
     ),
-    ODOMETRY_PERPENDICULAR(new Encoder("Back Left Drive")),
-    INTAKE(new Motor("Intake")
+    ODOMETRY_PERPENDICULAR(
+            new Encoder("Back Left Drive")
+            .setDirection(Encoder.Direction.REVERSE)),
+    INTAKE(
+            new Motor("Intake")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT)
+            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            .setType(MotorTypes.OTHER)
+    ),
+    RAMP(
+            new Servo("Ramp")
+    ),
+    SLIDE_LEFT(
+            new Motor("Slide Left")
+            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+            .setPIDTolerance(2.0)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            .setType(MotorTypes.OTHER)
+    ),
+    SLIDE_RIGHT(
+            new Motor("Slide Right")
+            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+            .setPIDTolerance(2.0)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     );

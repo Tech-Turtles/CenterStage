@@ -47,9 +47,9 @@ public class Servo extends HardwareDevice {
         return this;
     }
 
-    public void setAngle(double angle) {
+    public void setPosition(double position) {
         if(getStatus().equals(HardwareStatus.MISSING)) return;
-        device.setPosition(angle);
+        device.setPosition(position);
     }
 
     public void setDirection(Direction direction) {

@@ -1,20 +1,21 @@
-package org.firstinspires.ftc.teamcode.opmode.autonomous;
+package org.firstinspires.ftc.teamcode.core;
 
 import com.acmerobotics.dashboard.config.Config;
 
+import org.firstinspires.ftc.teamcode.opmode.autonomous.Autonomous;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.StartPosition;
 
 @Config
-public class RobotStateContext implements Executive.RobotStateMachineContextInterface {
+public class AutonomousStateContext implements Executive.RobotStateMachineContextInterface {
 
     // Required class variables
     private final Autonomous autonomous;
     private final Executive.StateMachine<Autonomous> stateMachine;
     private final AllianceColor allianceColor;
     private final StartPosition startPosition;
-    public RobotStateContext(Autonomous autonomous, AllianceColor allianceColor, StartPosition startPosition) {
+    public AutonomousStateContext(Autonomous autonomous, AllianceColor allianceColor, StartPosition startPosition) {
         this.autonomous = autonomous;
         this.allianceColor = allianceColor;
         this.startPosition = startPosition;
@@ -53,7 +54,7 @@ public class RobotStateContext implements Executive.RobotStateMachineContextInte
             switch (startPosition) {
                 case AUDIENCE:
                     break;
-                case FAR:
+                case BACK_BOARD:
                     break;
                 default:
                    throw new IllegalArgumentException("Invalid start position");

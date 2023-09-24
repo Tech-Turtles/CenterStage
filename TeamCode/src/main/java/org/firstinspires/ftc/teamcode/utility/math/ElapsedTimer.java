@@ -10,12 +10,12 @@ import java.util.List;
 
 public class ElapsedTimer extends ElapsedTime {
 
-    private ElapsedTime period = new ElapsedTime();
-    private List<Double> pastPeriods = new ArrayList<>();
+    private final ElapsedTime period = new ElapsedTime();
+    private final List<Double> pastPeriods = new ArrayList<>();
     private final double historyLength;
 
     public ElapsedTimer() {
-        this.historyLength = 200;
+        this(200);
     }
 
     public ElapsedTimer(double historyLength) {
@@ -25,7 +25,7 @@ public class ElapsedTimer extends ElapsedTime {
     public void updatePeriodTime(){
         pastPeriods.add(period.seconds());
         period.reset();
-        if (pastPeriods.size()>= 200) {
+        if (pastPeriods.size()>= historyLength) {
             pastPeriods.remove(0);
         }
         average(pastPeriods);
@@ -40,15 +40,17 @@ public class ElapsedTimer extends ElapsedTime {
     }
 
     public double getLastPeriodSec() {
-        if (pastPeriods.size() != 0) {
-            return pastPeriods.get(pastPeriods.size()-1);
-        } else {
+        if (pastPeriods.size() == 0)
             return 0;
-        }
+        return pastPeriods.get(pastPeriods.size()-1);
     }
 
     public List<Double> getPastPeriods() {
         return pastPeriods;
+    }
+
+    public void clearPastPeriods() {
+        pastPeriods.clear();
     }
 
     public double getHistoryLength() {

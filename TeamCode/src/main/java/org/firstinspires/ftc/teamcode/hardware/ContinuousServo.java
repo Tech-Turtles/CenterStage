@@ -13,7 +13,8 @@ public class ContinuousServo extends HardwareDevice {
     private CRServoImplEx device;
     private Direction direction = Direction.FORWARD;
     private PwmControl.PwmRange pwmRange = null;
-    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 10.0);
+    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 0.01);
+    private double feedforward;
     private NanoClock clock;
     private AbsoluteEncoder encoder = null;
     private double velocityEstimate;
@@ -50,6 +51,11 @@ public class ContinuousServo extends HardwareDevice {
         controller.setI(i);
         controller.setD(d);
         controller.reset();
+        return this;
+    }
+    public ContinuousServo configurePIDF(double p, double i, double d, double ff) {
+        configurePIDF(p,i,d);
+        this.feedforward = ff;
         return this;
     }
 
@@ -96,6 +102,10 @@ public class ContinuousServo extends HardwareDevice {
     public void setPower(double percentOutput) {
         if(getStatus().equals(HardwareStatus.MISSING)) return;
         device.setPower(percentOutput);
+    }
+
+    public void setReference(double setpoint) {
+        setReference(setpoint, feedforward, getPosition());
     }
 
     public void setReference(double setpoint, double feedforward) {

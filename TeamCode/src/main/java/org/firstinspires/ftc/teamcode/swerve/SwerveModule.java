@@ -54,10 +54,6 @@ public class SwerveModule {
      * @param moduleConfiguration Module constants containing CAN ID's and offsets.
      */
     public SwerveModule(int moduleNumber, SwerveModuleConfiguration moduleConfiguration) {
-        //    angle = 0;
-        //    speed = 0;
-        //    omega = 0;
-        //    fakePos = 0;
         this.moduleNumber = moduleNumber;
         configuration = moduleConfiguration;
         angleOffset = moduleConfiguration.angleOffset;
@@ -67,7 +63,8 @@ public class SwerveModule {
 
         // Create motors from configuration and reset them to defaults.
         angleServo = moduleConfiguration.angleServo;
-        angleServo.configurePIDF(configuration.anglePIDF.p, configuration.anglePIDF.i, configuration.anglePIDF.d);
+        angleServo.configurePIDF(configuration.anglePIDF.p, configuration.anglePIDF.i,
+                configuration.anglePIDF.d, configuration.anglePIDF.f);
         driveMotor = moduleConfiguration.driveMotor;
         driveMotor.configurePID(configuration.velocityPIDF.p, configuration.velocityPIDF.i, configuration.velocityPIDF.d);
 

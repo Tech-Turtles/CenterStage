@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.core;
 
+import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModulePhysicalCharacteristics;
 
+@Config
 public final class RobotConstants {
     public static final SwerveModulePhysicalCharacteristics SWERVE_MODULE_PHYSICAL_CHARACTERISTICS =
             new SwerveModulePhysicalCharacteristics(
@@ -23,4 +25,23 @@ public final class RobotConstants {
     public static final double SWERVE_MAX_SPEED = 2.2;
     // units m/s
     public static final double SWERVE_PRECISION_SPEED = 1.0;
+
+    // Mechanism Constants
+    public static double INTAKE_SPEED = 0.7;
+    public static double OUTTAKE_SPEED = -0.7;
+    public enum IntakePosition {
+        START(0.5),
+        DRIVE(0.4),
+        INTAKE(0.15),
+        STACK(0.25);
+        private final double position;
+        IntakePosition(double position) {
+            this.position = position;
+        }
+
+        public double getPosition() {
+            return position;
+        }
+    }
+    public static final double DEADZONE = 0.5;
 }

@@ -68,14 +68,11 @@ public class SwerveModuleState2 extends SwerveModuleState {
                                     0.065));
             double targetSpeed = desiredState.speedMetersPerSecond;
             double delta       = targetAngle - currentAngle.getDegrees();
-            if (Math.abs(delta) > 90)
-            {
+            if (Math.abs(delta) > 90) {
                 targetSpeed = -targetSpeed;
-                if (delta > 90)
-                {
+                if (delta > 90) {
                     targetAngle -= 180;
-                } else
-                {
+                } else {
                     targetAngle += 180;
                 }
             }
