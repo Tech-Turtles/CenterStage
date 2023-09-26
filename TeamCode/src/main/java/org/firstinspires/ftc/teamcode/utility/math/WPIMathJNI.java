@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.utility.math;
 public final class WPIMathJNI {
 
     /**
-     * Solves the discrete alegebraic Riccati equation.
+     * Solves the discrete algebraic Riccati equation.
      *
      * @param A Array containing elements of A in row-major order.
      * @param B Array containing elements of B in row-major order.

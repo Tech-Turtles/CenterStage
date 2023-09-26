@@ -33,9 +33,6 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
         leftEncoder = RobotConfiguration.ODOMETRY_PARALLEL_LEFT.getAsEncoder();
         frontEncoder = RobotConfiguration.ODOMETRY_PERPENDICULAR.getAsEncoder();
         rightEncoder = RobotConfiguration.ODOMETRY_PARALLEL_RIGHT.getAsEncoder();
-
-        rightEncoder.setDirection(Encoder.Direction.REVERSE);
-        frontEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {

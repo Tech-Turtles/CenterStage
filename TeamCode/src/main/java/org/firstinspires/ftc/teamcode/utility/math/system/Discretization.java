@@ -50,10 +50,10 @@ public final class Discretization {
         //            [ 0    I ]
         Matrix<Num, Num> phi = M.times(dtSeconds).exp();
 
-        Matrix<States, States> discA = new Matrix<States, States>(new SimpleMatrix(states, states));
+        Matrix<States, States> discA = new Matrix<>(new SimpleMatrix(states, states));
         discA.extractFrom(0, 0, phi);
 
-        Matrix<States, Inputs> discB = new Matrix<States, Inputs>(new SimpleMatrix(states, inputs));
+        Matrix<States, Inputs> discB = new Matrix<>(new SimpleMatrix(states, inputs));
         discB.extractFrom(0, contB.getNumRows(), phi);
 
         return new Pair<>(discA, discB);

@@ -28,7 +28,13 @@ public class Webcam extends HardwareDevice {
         setStatus(HardwareStatus.SUCCESS);
     }
 
-    public void stop() {
+    public Webcam configureVisionProcessor(VisionProcessor visionProcessor) {
+        this.visionProcessor = visionProcessor;
+        return this;
+    }
 
+    public void stop() {
+        if(visionPortal != null)
+            visionPortal.close();
     }
 }
