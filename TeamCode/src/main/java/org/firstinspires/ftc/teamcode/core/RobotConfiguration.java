@@ -31,28 +31,28 @@ public enum RobotConfiguration {
     ),
     DRIVE_FRONT_LEFT(
             new Motor("Front Left Drive")
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
     DRIVE_FRONT_RIGHT(
             new Motor("Front Right Drive")
-            .configureDirection(DcMotorSimple.Direction.REVERSE)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
     DRIVE_BACK_LEFT(
             new Motor("Back Left Drive")
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
     ),
     DRIVE_BACK_RIGHT(
             new Motor("Back Right Drive")
-            .configureDirection(DcMotorSimple.Direction.REVERSE)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.DRIVE)
@@ -82,7 +82,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.006, 0.0, 0.0)
+            .configurePIDF(0.009, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_FRONT_LEFT.getAsAbsoluteEncoder())
     ),
     ANGLE_FRONT_RIGHT(
@@ -90,7 +90,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.006, 0.0, 0.0)
+            .configurePIDF(0.009, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_FRONT_RIGHT.getAsAbsoluteEncoder())
     ),
     ANGLE_BACK_LEFT(
@@ -98,7 +98,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.008, 0.0, 0.0)
+            .configurePIDF(0.009, 0.0, 0.0)
             .configureEncoder(ABSOLUTE_BACK_LEFT.getAsAbsoluteEncoder())
     ),
     ANGLE_BACK_RIGHT(
@@ -110,14 +110,16 @@ public enum RobotConfiguration {
             .configureEncoder(ABSOLUTE_BACK_RIGHT.getAsAbsoluteEncoder())
     ),
     ODOMETRY_PARALLEL_LEFT(
-            new Encoder("Front Left Drive")),
+            new Encoder("Front Left Drive")
+            .setDirection(Encoder.Direction.REVERSE)
+    ),
     ODOMETRY_PARALLEL_RIGHT(
             new Encoder("Front Right Drive")
-            .setDirection(Encoder.Direction.REVERSE)
+            .setDirection(Encoder.Direction.FORWARD)
     ),
     ODOMETRY_PERPENDICULAR(
             new Encoder("Back Left Drive")
-            .setDirection(Encoder.Direction.REVERSE)),
+            .setDirection(Encoder.Direction.FORWARD)),
     INTAKE(
             new Motor("Intake")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
@@ -127,6 +129,9 @@ public enum RobotConfiguration {
     ),
     RAMP(
             new Servo("Ramp")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
     ),
     SLIDE_LEFT(
             new Motor("Slide Left")
@@ -143,6 +148,30 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
+    ),
+    ARM_LEFT(
+            new Servo("Arm Left")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
+    ),
+    ARM_RIGHT(
+            new Servo("Arm Right")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
+    ),
+    CLAW_LEFT(
+            new Servo("Claw Left")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
+    ),
+    CLAW_RIGHT(
+            new Servo("Claw Right")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
     );
 
     private final HardwareDevice device;

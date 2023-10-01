@@ -32,6 +32,8 @@ public class ContinuousServo extends HardwareDevice {
             return;
         }
 
+        this.controller.setTolerance(0.5);
+
         this.device = (CRServoImplEx) device;
         this.device.setDirection(direction);
 

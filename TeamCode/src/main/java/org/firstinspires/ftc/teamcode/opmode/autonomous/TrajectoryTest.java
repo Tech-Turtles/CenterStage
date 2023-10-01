@@ -23,7 +23,7 @@ import java.util.stream.Stream;
 public class TrajectoryTest extends RobotHardware {
 
     SwerveDriveController controller;
-    public static double x1 = 0.5, y1 = 0.5, x2 = 1.0, y2 = 0.5, endX = 1.1, endY = 0.5;
+    public static double x1 = 0.5, y1 = 0.0, x2 = 1.0, y2 = 0.25, endX = 0.0, endY = 0.0;
     private Trajectory test;
 
     @Override
@@ -31,6 +31,7 @@ public class TrajectoryTest extends RobotHardware {
         super.init();
         TrajectoryConfig config = new TrajectoryConfig(1.5, 0.75)
                 .setKinematics(swerveDrive.kinematics);
+
         test = TrajectoryGenerator.generateTrajectory(
                 new Pose2d(0.0, 0.0, Rotation2d.fromDegrees(0.0)),
                 Stream.of(
@@ -44,19 +45,17 @@ public class TrajectoryTest extends RobotHardware {
         TrapezoidProfile.Constraints kThetaControllerConstraints = //
                 new TrapezoidProfile.Constraints(
                         swerveControllerConfiguration.maxAngularVelocity,
-                        Math.PI / 4);
+                        Math.PI / 2);
 
         controller = new SwerveDriveController(
                 test,
                 swerveDrive::getPose,
                 swerveDrive.kinematics,
-                new PIDController(1.5, 0.0, 0.0, 0.001),
-                new PIDController(1.5, 0.0, 0.0, 0.001),
-                new ProfiledPIDController(3.0, 0.0, 0.0, kThetaControllerConstraints, 0.001),
+                new PIDController(1.0, 0.0, 0.0, 0.01),
+                new PIDController(1.0, 0.0, 0.0, 0.01),
+                new ProfiledPIDController(2.0, 0.0, 0.0, kThetaControllerConstraints, 0.01),
                 swerveDrive::setModuleStates
         );
-
-        controller.initialize();
     }
 
     @Override
@@ -68,17 +67,21 @@ public class TrajectoryTest extends RobotHardware {
     @Override
     public void start() {
         super.start();
-
+        swerveDrive.resetOdometry(new Pose2d(0.0, 0.0, new Rotation2d(0.0)));
+        controller.initialize();
     }
 
     @Override
     public void loop() {
         super.loop();
-        controller.update();
-
+        swerveDrive.updateOdometry();
+        telemetry.addData("Pose2d", swerveDrive.getPose());
         if(controller.isFinished()) {
             swerveDrive.drive(new Translation2d(0.0, 0.0), 0.0, false, true);
-            stop();
+            telemetry.addData("Running", "Arrived");
+        } else {
+            controller.update();
+            telemetry.addData("Running", "Driving");
         }
     }
 }

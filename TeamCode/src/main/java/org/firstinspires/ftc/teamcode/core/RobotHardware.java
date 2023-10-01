@@ -78,7 +78,7 @@ public class RobotHardware extends OpMode {
                 RobotConfiguration.DRIVE_FRONT_LEFT.getAsMotor(),
                 RobotConfiguration.ANGLE_FRONT_LEFT.getAsContinuousServo(),
                 RobotConfiguration.ABSOLUTE_FRONT_LEFT.getAsAbsoluteEncoder(),
-                0.1778, 0.1778, new PIDFConfig(0.02,0.0, 0.02, 0.3),
+                0.1778, 0.1778, new PIDFConfig(0.009,0.0),
                 new PIDFConfig(0.08, 0.0), 2.2, SWERVE_MODULE_PHYSICAL_CHARACTERISTICS, "FrontLeft"
         );
 
@@ -86,7 +86,7 @@ public class RobotHardware extends OpMode {
                 RobotConfiguration.DRIVE_FRONT_RIGHT.getAsMotor(),
                 RobotConfiguration.ANGLE_FRONT_RIGHT.getAsContinuousServo(),
                 RobotConfiguration.ABSOLUTE_FRONT_RIGHT.getAsAbsoluteEncoder(),
-                0.1778, -0.1778, new PIDFConfig(0.05,0.0, 0.01, 0.3),
+                0.1778, -0.1778, new PIDFConfig(0.009,0.0),
                 new PIDFConfig(0.08, 0.0), 2.2, SWERVE_MODULE_PHYSICAL_CHARACTERISTICS, "FrontRight"
         );
 
@@ -94,7 +94,7 @@ public class RobotHardware extends OpMode {
                 RobotConfiguration.DRIVE_BACK_LEFT.getAsMotor(),
                 RobotConfiguration.ANGLE_BACK_LEFT.getAsContinuousServo(),
                 RobotConfiguration.ABSOLUTE_BACK_LEFT.getAsAbsoluteEncoder(),
-                -0.1778, 0.1778, new PIDFConfig(0.008,0.0),
+                -0.1778, 0.1778, new PIDFConfig(0.009,0.0),
                 new PIDFConfig(0.08, 0.0), 2.2, SWERVE_MODULE_PHYSICAL_CHARACTERISTICS, "BackLeft"
         );
 
@@ -108,7 +108,7 @@ public class RobotHardware extends OpMode {
 
         SwerveDriveConfiguration swerveDriveConfiguration = new SwerveDriveConfiguration(
                 new SwerveModuleConfiguration[]{front_left, front_right, back_left, back_right},
-                RobotConfiguration.IMU.getAsIMU(), 2.2, false);
+                RobotConfiguration.IMU.getAsIMU(), 2.4, false);
 
         swerveControllerConfiguration = new SwerveControllerConfiguration(
                 swerveDriveConfiguration, new PIDFConfig(0.08, 0.0));

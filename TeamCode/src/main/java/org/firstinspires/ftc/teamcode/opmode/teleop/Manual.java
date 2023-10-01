@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 
 
@@ -65,15 +66,17 @@ public class Manual extends RobotHardware {
                 precisionMode = !precisionMode;
             }
 
-            if (primary.YOnce())
+            if (primary.YOnce()) {
                 swerveDrive.zeroGyro();
+                swerveDrive.resetOdometry(new Pose2d());
+            }
 
             if (primary.BOnce())
                 fieldRelative = !fieldRelative;
 
             double xVelocity   = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed;
             double yVelocity   = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed;
-            double angVelocity = primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity;
+            double angVelocity = -primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity;
 
             swerveDrive.drive(new Translation2d(xVelocity, yVelocity), angVelocity, fieldRelative, true);
             swerveDrive.updateOdometry();

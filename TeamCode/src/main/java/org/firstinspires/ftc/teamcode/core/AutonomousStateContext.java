@@ -6,6 +6,7 @@ import org.firstinspires.ftc.teamcode.opmode.autonomous.Autonomous;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.StartPosition;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
 
 @Config
 public class AutonomousStateContext implements Executive.RobotStateMachineContextInterface {
@@ -53,8 +54,10 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
             switch (startPosition) {
                 case AUDIENCE:
+                    opMode.swerveDrive.resetOdometry(new Pose2d());
                     break;
                 case BACK_BOARD:
+                    opMode.swerveDrive.resetOdometry(new Pose2d());
                     break;
                 default:
                    throw new IllegalArgumentException("Invalid start position");
