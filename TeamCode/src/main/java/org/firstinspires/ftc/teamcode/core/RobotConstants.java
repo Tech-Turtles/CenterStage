@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModulePhysicalC
 public final class RobotConstants {
     public static final SwerveModulePhysicalCharacteristics SWERVE_MODULE_PHYSICAL_CHARACTERISTICS =
             new SwerveModulePhysicalCharacteristics(
-            8.181818, 1.0, 0.072, 1.1,
+            10, 1.0, 0.072, 1.1,
             12.0, 20, 20, 0.25,
             0.25, 1, 1, 0.0
     );
@@ -24,7 +24,9 @@ public final class RobotConstants {
     // units m/s
     public static final double SWERVE_MAX_SPEED = 2.2;
     // units m/s
-    public static final double SWERVE_PRECISION_SPEED = 1.0;
+    public static final double SWERVE_PRECISION_SPEED = 0.5;
+    // seconds
+    public static double HEADING_TIME = 0.1;
 
     // Mechanism Constants
     public static double INTAKE_SPEED = 0.7;

@@ -12,16 +12,18 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
+import org.firstinspires.ftc.teamcode.swerve.SwerveDrive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 
-
 @Config
 @TeleOp(name="Manual", group="A")
 public class Manual extends RobotHardware {
-    private boolean precisionMode = false;
+    private double precisionMode = 1.0;
+    private final double precisionPercentage = 0.35;
     public static boolean fieldRelative = false;
+    public static boolean headingCorrection = true;
     private final Executive.StateMachine<Manual> stateMachine;
 
     public Manual() {
@@ -45,6 +47,11 @@ public class Manual extends RobotHardware {
     public void start() {
         super.start();
         stateMachine.changeState(Executive.StateMachine.StateType.DRIVE, new Drive_Manual());
+
+        if(fieldRelative)
+            primary.setLedColor(0.0, 0.0, 1.0, -1);
+        else
+            primary.setLedColor(1.0, 1.0, 0.0, -1);
     }
 
     @Override
@@ -52,8 +59,7 @@ public class Manual extends RobotHardware {
         super.loop();
         stateMachine.update();
 
-        telemetry.addData("Field Relative", fieldRelative);
-        telemetry.addData("Gyro", swerveDrive.getGyroRotation3d().getX());
+//        telemetry.addData("Gyro", swerveDrive.getGyroRotation3d().getX());
     }
     
     class Drive_Manual extends Executive.StateBase<Manual> {
@@ -62,8 +68,8 @@ public class Manual extends RobotHardware {
             super.update();
 
             if (primary.AOnce()) {
-                swerveDrive.setMaximumSpeed(precisionMode ? SWERVE_MAX_SPEED : SWERVE_PRECISION_SPEED);
-                precisionMode = !precisionMode;
+//                swerveDrive.setMaximumSpeed(precisionMode ? SWERVE_MAX_SPEED : SWERVE_PRECISION_SPEED);
+                precisionMode = precisionMode == 1.0 ? precisionPercentage : 1.0;
             }
 
             if (primary.YOnce()) {
@@ -71,26 +77,39 @@ public class Manual extends RobotHardware {
                 swerveDrive.resetOdometry(new Pose2d());
             }
 
-            if (primary.BOnce())
+            if (primary.BOnce()) {
                 fieldRelative = !fieldRelative;
+                if(fieldRelative)
+                    primary.setLedColor(0.0, 0.0, 1.0, -1);
+                else
+                    primary.setLedColor(1.0, 1.0, 0.0, -1);
+            }
 
-            double xVelocity   = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed;
-            double yVelocity   = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed;
-            double angVelocity = -primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity;
+            if (primary.XOnce())
+                headingCorrection = !headingCorrection;
 
-            swerveDrive.drive(new Translation2d(xVelocity, yVelocity), angVelocity, fieldRelative, true);
+            if(primary.rightStickButtonOnce()) {
+                SwerveDrive.lastHeadingRadians = (3 * Math.PI) / 2;
+                SwerveDrive.updatedHeading = true;
+            }
+
+            double xV = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed;
+            double yV = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed;
+            double thetaV = -primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity * precisionMode;
+
+            swerveDrive.drive(new Translation2d(xV, yV).times(precisionPercentage), thetaV, fieldRelative, true, headingCorrection);
             swerveDrive.updateOdometry();
 
-//            if(primary.right_trigger > DEADZONE) {
-//                RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED);
-//                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
-//            } else if(primary.left_trigger > DEADZONE) {
-//                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
-//                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
-//            } else {
-//                RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
-//                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
-//            }
+            if(primary.right_trigger > DEADZONE) {
+                RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED);
+                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
+            } else if(primary.left_trigger > DEADZONE) {
+                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
+                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
+            } else {
+                RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
+                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
+            }
         }
     }
 }

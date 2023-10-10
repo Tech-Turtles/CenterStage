@@ -2,9 +2,11 @@ package org.firstinspires.ftc.teamcode.swerve;
 
 import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.hardware.IMU;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveControllerConfiguration;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveDriveConfiguration;
+import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
 import org.firstinspires.ftc.teamcode.utility.math.Matrix;
 import org.firstinspires.ftc.teamcode.utility.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.utility.math.controller.SimpleMotorFeedforward;
@@ -77,7 +79,9 @@ public class SwerveDrive {
     /**
      * The last heading set in radians.
      */
-    private double              lastHeadingRadians           = 0;
+    public static double              lastHeadingRadians           = 0;
+    private static final ElapsedTimer timer = new ElapsedTimer();
+    public static boolean updatedHeading = false;
 
     /**
      * Creates a new swerve drive-base subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
@@ -111,6 +115,7 @@ public class SwerveDrive {
 //                        visionMeasurementStdDevs); // x,y,heading in radians; Vision measurement std dev, higher=less weight
 
         zeroGyro();
+        timer.reset();
     }
 
     /**
@@ -178,15 +183,53 @@ public class SwerveDrive {
         // Originally made by FRC1466 Webb Robotics.
         if (headingCorrection) {
             if (Math.abs(rotation) < 0.01) {
-                velocity.omegaRadiansPerSecond =
-                        swerveController.headingCalculate(lastHeadingRadians, getYaw().getRadians());
+                if(timer.seconds() > RobotConstants.HEADING_TIME || updatedHeading) {
+                    velocity.omegaRadiansPerSecond =
+                            swerveController.headingCalculate(getYaw().getRadians(), lastHeadingRadians);
+                } else {
+                    lastHeadingRadians = getYaw().getRadians();
+                }
             } else {
+                timer.reset();
+                updatedHeading = false;
                 lastHeadingRadians = getYaw().getRadians();
             }
         }
 
         // Calculate required module states via kinematics
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), isOpenLoop);
+    }
+
+    /**
+     * Get the chassis speeds based on controller input of 2 joysticks. One for speeds in which direction. The other for
+     * the angle of the robot.
+     *
+     * @param xInput   X joystick input for the robot to move in the X direction.
+     * @param yInput   Y joystick input for the robot to move in the Y direction.
+     * @param headingX X joystick which controls the angle of the robot.
+     * @param headingY Y joystick which controls the angle of the robot.
+     * @return {@link ChassisSpeeds} which can be sent to th Swerve Drive.
+     */
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, double headingX, double headingY)
+    {
+        xInput = Math.pow(xInput, 3);
+        yInput = Math.pow(yInput, 3);
+        return swerveController.getTargetSpeeds(xInput, yInput, headingX, headingY, getYaw().getRadians());
+    }
+
+    /**
+     * Get the chassis speeds based on controller input of 1 joystick and one angle.
+     *
+     * @param xInput X joystick input for the robot to move in the X direction.
+     * @param yInput Y joystick input for the robot to move in the Y direction.
+     * @param angle  The angle in as a {@link Rotation2d}.
+     * @return {@link ChassisSpeeds} which can be sent to th Swerve Drive.
+     */
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle)
+    {
+        xInput = Math.pow(xInput, 3);
+        yInput = Math.pow(yInput, 3);
+        return swerveController.getTargetSpeeds(xInput, yInput, angle.getRadians(), getYaw().getRadians());
     }
 
     /**
@@ -318,8 +361,7 @@ public class SwerveDrive {
      */
     public SwerveModuleState2[] getStates() {
         SwerveModuleState2[] states = new SwerveModuleState2[swerveDriveConfiguration.moduleCount];
-        for (SwerveModule module : swerveModules)
-        {
+        for (SwerveModule module : swerveModules) {
             states[module.moduleNumber] = module.getState();
         }
         return states;

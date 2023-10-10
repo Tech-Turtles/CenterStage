@@ -111,7 +111,7 @@ public class RobotHardware extends OpMode {
                 RobotConfiguration.IMU.getAsIMU(), 2.4, false);
 
         swerveControllerConfiguration = new SwerveControllerConfiguration(
-                swerveDriveConfiguration, new PIDFConfig(0.08, 0.0));
+                swerveDriveConfiguration, new PIDFConfig(0.7, 0.0));
 
         swerveDrive = new SwerveDrive(swerveDriveConfiguration, swerveControllerConfiguration);
 
@@ -169,9 +169,10 @@ public class RobotHardware extends OpMode {
         if(packet != null) {
             dashboard.sendTelemetryPacket(packet);
             packet.clearLines();
+            packet.put("Period Average", period.getAveragePeriodSec());
         }
         // Output average period (loop time)
-        telemetry.addData("Period Average","%.4f sec", period.getAveragePeriodSec());
+//        telemetry.addData("Period Average","%.4f sec", period.getAveragePeriodSec());
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
 //        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();

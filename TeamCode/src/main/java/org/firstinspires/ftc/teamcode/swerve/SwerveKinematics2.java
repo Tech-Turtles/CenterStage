@@ -136,14 +136,13 @@ public class SwerveKinematics2 extends SwerveDriveKinematics
             ChassisSpeeds currentChassisSpeed,
             double attainableMaxModuleSpeedMetersPerSecond,
             double attainableMaxTranslationalSpeedMetersPerSecond,
-            double attainableMaxRotationalVelocityRadiansPerSecond)
-    {
+            double attainableMaxRotationalVelocityRadiansPerSecond) {
+
         double realMaxSpeed = Collections.max(Arrays.asList(moduleStates)).speedMetersPerSecond;
 
         if (attainableMaxTranslationalSpeedMetersPerSecond == 0
                 || attainableMaxRotationalVelocityRadiansPerSecond == 0
-                || realMaxSpeed == 0)
-        {
+                || realMaxSpeed == 0) {
             return;
         }
         double translationalK =
@@ -154,8 +153,7 @@ public class SwerveKinematics2 extends SwerveDriveKinematics
                         / attainableMaxRotationalVelocityRadiansPerSecond;
         double k     = Math.max(translationalK, rotationalK);
         double scale = Math.min(k * attainableMaxModuleSpeedMetersPerSecond / realMaxSpeed, 1);
-        for (SwerveModuleState moduleState : moduleStates)
-        {
+        for (SwerveModuleState moduleState : moduleStates) {
             moduleState.speedMetersPerSecond *= scale;
         }
     }
@@ -182,8 +180,7 @@ public class SwerveKinematics2 extends SwerveDriveKinematics
      */
     @SuppressWarnings("PMD.MethodReturnsInternalArray")
     public SwerveModuleState2[] toSwerveModuleStates(
-            ChassisSpeeds chassisSpeeds, Translation2d centerOfRotationMeters)
-    {
+            ChassisSpeeds chassisSpeeds, Translation2d centerOfRotationMeters) {
         double time = m_moduleAccelTimer.time();
         double dt   = time - m_prevModuleAccelTime;
         m_prevModuleAccelTime = time;
@@ -197,20 +194,16 @@ public class SwerveKinematics2 extends SwerveDriveKinematics
 
         if (chassisSpeeds.vxMetersPerSecond == 0.0
                 && chassisSpeeds.vyMetersPerSecond == 0.0
-                && chassisSpeeds.omegaRadiansPerSecond == 0.0)
-        {
-            for (int i = 0; i < m_numModules; i++)
-            {
+                && chassisSpeeds.omegaRadiansPerSecond == 0.0) {
+            for (int i = 0; i < m_numModules; i++) {
                 m_moduleStates[i].speedMetersPerSecond = 0.0;
             }
 
             return m_moduleStates;
         }
 
-        if (!centerOfRotationMeters.equals(m_prevCoR))
-        {
-            for (int i = 0; i < m_numModules; i++)
-            {
+        if (!centerOfRotationMeters.equals(m_prevCoR)) {
+            for (int i = 0; i < m_numModules; i++) {
                 m_inverseKinematics.setRow(
                         i * 2,
                         0, /* Start Data */

@@ -141,8 +141,7 @@ public class SwerveController
             double yInput,
             double headingX,
             double headingY,
-            double currentHeadingAngleRadians)
-    {
+            double currentHeadingAngleRadians) {
         // Converts the horizontal and vertical components to the commanded angle, in radians, unless
         // the joystick is near
         // the center (i. e. has been released), in which case the angle is held at the last valid
@@ -166,18 +165,14 @@ public class SwerveController
      * @param omega  Angular velocity in radians/second.
      * @return {@link ChassisSpeeds} the robot should move to.
      */
-    public ChassisSpeeds getRawTargetSpeeds(double xSpeed, double ySpeed, double omega)
-    {
-        if (xLimiter != null)
-        {
+    public ChassisSpeeds getRawTargetSpeeds(double xSpeed, double ySpeed, double omega) {
+        if (xLimiter != null) {
             xSpeed = xLimiter.calculate(xSpeed);
         }
-        if (yLimiter != null)
-        {
+        if (yLimiter != null) {
             ySpeed = yLimiter.calculate(ySpeed);
         }
-        if (angleLimiter != null)
-        {
+        if (angleLimiter != null) {
             omega = angleLimiter.calculate(omega);
         }
 
@@ -194,8 +189,7 @@ public class SwerveController
      * @return {@link ChassisSpeeds} the robot should move to.
      */
     public ChassisSpeeds getRawTargetSpeeds(double xSpeed, double ySpeed, double targetHeadingAngleRadians,
-                                            double currentHeadingAngleRadians)
-    {
+                                            double currentHeadingAngleRadians) {
         // Calculates an angular rate using a PIDController and the commanded angle. Returns a value between -1 and 1
         // which is then scaled to be between -maxAngularVelocity and +maxAngularVelocity.
         return getRawTargetSpeeds(xSpeed, ySpeed,
@@ -210,8 +204,7 @@ public class SwerveController
      * @param targetHeadingAngleRadians  The target heading of the robot in radians.
      * @return Angular velocity in radians per second.
      */
-    public double headingCalculate(double currentHeadingAngleRadians, double targetHeadingAngleRadians)
-    {
+    public double headingCalculate(double currentHeadingAngleRadians, double targetHeadingAngleRadians) {
         return thetaController.calculate(currentHeadingAngleRadians, targetHeadingAngleRadians) * config.maxAngularVelocity;
     }
 
@@ -222,8 +215,7 @@ public class SwerveController
      *
      * @param angularVelocity Angular velocity in radians per second.
      */
-    public void setMaximumAngularVelocity(double angularVelocity)
-    {
+    public void setMaximumAngularVelocity(double angularVelocity) {
         config.maxAngularVelocity = angularVelocity;
     }
 }

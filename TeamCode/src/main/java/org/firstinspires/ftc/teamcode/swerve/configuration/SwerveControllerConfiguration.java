@@ -58,6 +58,6 @@ public class SwerveControllerConfiguration
      */
     public SwerveControllerConfiguration(SwerveDriveConfiguration driveCfg, PIDFConfig headingPIDF)
     {
-        this(driveCfg, headingPIDF, 0.5);
+        this(driveCfg, headingPIDF, 0.2);
     }
 }

@@ -218,6 +218,10 @@ public class Controller {
         return 1 == right_bumper;
     }
 
+    public void setLedColor(double r, double g, double b, int durationMs) {
+        gamepad.setLedColor(r, g, b, durationMs);
+    }
+
     public double deadZone(double input,double deadzone) {
         if (Math.abs(input) <= deadzone) {
             return 0.0;
