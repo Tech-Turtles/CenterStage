@@ -200,6 +200,25 @@ public class SwerveDrive {
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), isOpenLoop);
     }
 
+    public void drive(ChassisSpeeds velocity) {
+        // Thank you to Jared Russell FRC254 for Open Loop Compensation Code
+        // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+        //ToDo See if chassis velocity correct helps in path following
+        if (false && chassisVelocityCorrection) {
+            double dtConstant = 0.009;
+            Pose2d robotPoseVel = new Pose2d(velocity.vxMetersPerSecond * dtConstant,
+                    velocity.vyMetersPerSecond * dtConstant,
+                    Rotation2d.fromRadians(velocity.omegaRadiansPerSecond * dtConstant));
+            Twist2d twistVel = SwerveMath.PoseLog(robotPoseVel);
+
+            velocity = new ChassisSpeeds(twistVel.dx / dtConstant, twistVel.dy / dtConstant,
+                    twistVel.dtheta / dtConstant);
+        }
+
+        // Calculate required module states via kinematics
+        setRawModuleStates(kinematics.toSwerveModuleStates(velocity), true);
+    }
+
     /**
      * Get the chassis speeds based on controller input of 2 joysticks. One for speeds in which direction. The other for
      * the angle of the robot.

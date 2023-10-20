@@ -17,6 +17,7 @@ public class Autonomous extends RobotHardware {
     public static AllianceColor robotColor = AllianceColor.RED;
     public static StartPosition robotStartPos = StartPosition.AUDIENCE;
     private Executive.RobotStateMachineContextInterface robotStateContext;
+
     @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Left", group="A")
     public static class AutoRedAudience extends Autonomous {
         @Override public void init() {

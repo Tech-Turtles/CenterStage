@@ -59,22 +59,22 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_FRONT_LEFT(
             new AbsoluteEncoder("Front Left Encoder")
-            .zero(158.5)
+            .zero(79.3)
             .setInverted(false)
     ),
     ABSOLUTE_FRONT_RIGHT(
             new AbsoluteEncoder("Front Right Encoder")
-            .zero(121.0)
+            .zero(311.0)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_LEFT(
             new AbsoluteEncoder("Back Left Encoder")
-            .zero(311.2)
+            .zero(138.7)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_RIGHT(
             new AbsoluteEncoder("Back Right Encoder")
-            .zero(78.0)
+            .zero(158.0)
             .setInverted(false)
     ),
     ANGLE_FRONT_LEFT(
@@ -133,22 +133,22 @@ public enum RobotConfiguration {
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
-    SLIDE_LEFT(
-            new Motor("Slide Left")
-            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
-            .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
-            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-            .setType(MotorTypes.OTHER)
-    ),
-    SLIDE_RIGHT(
-            new Motor("Slide Right")
-            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
-            .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.REVERSE)
-            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-            .setType(MotorTypes.OTHER)
-    ),
+//    SLIDE_LEFT(
+//            new Motor("Slide Left")
+//            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+//            .setPIDTolerance(2.0)
+//            .configureDirection(DcMotorSimple.Direction.FORWARD)
+//            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+//            .setType(MotorTypes.OTHER)
+//    ),
+//    SLIDE_RIGHT(
+//            new Motor("Slide Right")
+//            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+//            .setPIDTolerance(2.0)
+//            .configureDirection(DcMotorSimple.Direction.REVERSE)
+//            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+//            .setType(MotorTypes.OTHER)
+//    ),
     ARM_LEFT(
             new Servo("Arm Left")
             .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)

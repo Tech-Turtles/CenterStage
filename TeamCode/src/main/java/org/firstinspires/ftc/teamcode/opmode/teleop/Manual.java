@@ -4,8 +4,6 @@ import static org.firstinspires.ftc.teamcode.core.RobotConstants.DEADZONE;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.INTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.IntakePosition;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.OUTTAKE_SPEED;
-import static org.firstinspires.ftc.teamcode.core.RobotConstants.SWERVE_MAX_SPEED;
-import static org.firstinspires.ftc.teamcode.core.RobotConstants.SWERVE_PRECISION_SPEED;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -20,7 +18,7 @@ import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 @Config
 @TeleOp(name="Manual", group="A")
 public class Manual extends RobotHardware {
-    private double precisionMode = 1.0;
+    public static double precisionMode = 1.0;
     private final double precisionPercentage = 0.35;
     public static boolean fieldRelative = false;
     public static boolean headingCorrection = true;
@@ -93,18 +91,18 @@ public class Manual extends RobotHardware {
                 SwerveDrive.updatedHeading = true;
             }
 
-            double xV = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed;
-            double yV = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed;
+            double xV = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed * precisionMode;
+            double yV = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed * precisionMode;
             double thetaV = -primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity * precisionMode;
 
-            swerveDrive.drive(new Translation2d(xV, yV).times(precisionPercentage), thetaV, fieldRelative, true, headingCorrection);
+            swerveDrive.drive(new Translation2d(xV, yV), thetaV, fieldRelative, true, headingCorrection);
             swerveDrive.updateOdometry();
 
             if(primary.right_trigger > DEADZONE) {
-                RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED);
+                RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED * primary.right_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
             } else if(primary.left_trigger > DEADZONE) {
-                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
+                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED * primary.left_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
             } else {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
