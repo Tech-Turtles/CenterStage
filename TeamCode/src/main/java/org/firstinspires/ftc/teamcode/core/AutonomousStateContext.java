@@ -100,11 +100,9 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 case BACK_BOARD:
                     switch (routine) {
                         case PARK:
-                            setStartPosition(
-                                    trajectories[RobotConstants.AutonomousRoutine.PARK.ordinal()]
-                                            .getInitialState().getTargetHolonomicPose()
-                            );
-                            nextState(StateType.DRIVE, new Back_Park());
+//                            setStartPosition(
+//                                    new Pose2d()
+//                            );
                             break;
                         case SPIKE_PARK:
                             setStartPosition(
@@ -127,6 +125,15 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             }
         }
 
+        @Override
+        public void update() {
+            super.update();
+            opMode.telemetry.addData("State Position", opMode.swerveDrive.getPose());
+            if(opMode.primary.A()) {
+                nextState(StateType.DRIVE, new Back_Park());
+            }
+        }
+
         private void setStartPosition(Pose2d pose) {
             opMode.swerveDrive.resetOdometry(pose);
         }
@@ -134,31 +141,40 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
     private class Back_Park extends Executive.StateBase<Autonomous> {
         private PathPlannerTrajectory generatedTrajectory;
+        private boolean hasRun = false;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
 
-            PathPlannerPath path = PathPlannerPath.fromPathFile(RobotConstants.BACK_PARK);
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+
+            PathPlannerPath path = PathPlannerPath.fromPathFile("Forward");
+
+            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            opMode.swerveDrive.resetOdometry(generatedTrajectory.getInitialTargetHolonomicPose());
 
             controller.reset(opMode.swerveDrive.getPose(), new ChassisSpeeds(0.0, 0.0, 0.0));
             Pose2d currentPose = poseSupplier.get();
-            ChassisSpeeds currentSpeeds = speedsSupplier.get();
 
             controller.reset(currentPose, currentSpeeds);
 
-            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
             stateTimer.reset();
         }
 
         @Override
         public void update() {
             super.update();
-
+            if(!hasRun) {
+                stateTimer.reset();
+                hasRun = true;
+            }
             double currentTime = stateTimer.seconds();
             PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
             Pose2d currentPose = poseSupplier.get();
+            opMode.telemetry.addData("Pose", currentPose);
             ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
-
+            opMode.telemetry.addData("Speeds", targetSpeeds);
             output.accept(targetSpeeds);
 
             if(currentTime > generatedTrajectory.getTotalTimeSeconds())
@@ -300,7 +316,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
     }
 
     private void loadPathPlannerTrajectories() {
-        trajectories[RobotConstants.AutonomousRoutine.PARK.ordinal()] = new PathPlannerTrajectory(PathPlannerPath.fromPathFile(RobotConstants.BACK_PARK), new ChassisSpeeds());
+//        trajectories[RobotConstants.AutonomousRoutine.PARK.ordinal()] = new PathPlannerTrajectory(PathPlannerPath.fromPathFile(RobotConstants.BACK_PARK), new ChassisSpeeds());
 
     }
 }

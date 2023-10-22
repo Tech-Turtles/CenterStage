@@ -70,4 +70,9 @@ public class Servo extends HardwareDevice {
         this.pwmRange = pwmRange;
         device.setPwmRange(pwmRange);
     }
+
+    public void disablePWM() {
+        if(getStatus().equals(HardwareStatus.MISSING)) return;
+        device.setPwmDisable();
+    }
 }

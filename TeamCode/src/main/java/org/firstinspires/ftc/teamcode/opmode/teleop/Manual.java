@@ -4,11 +4,13 @@ import static org.firstinspires.ftc.teamcode.core.RobotConstants.DEADZONE;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.INTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.IntakePosition;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.OUTTAKE_SPEED;
+import static org.firstinspires.ftc.teamcode.core.RobotConstants.WRIST_CENTER;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.swerve.SwerveDrive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
@@ -24,6 +26,9 @@ public class Manual extends RobotHardware {
     public static boolean headingCorrection = true;
     private final Executive.StateMachine<Manual> stateMachine;
 
+    private RobotConstants.ClawPosition left = RobotConstants.ClawPosition.OPEN, right = RobotConstants.ClawPosition.OPEN;
+    private RobotConstants.ArmPosition armPosition = RobotConstants.ArmPosition.START;
+
     public Manual() {
         stateMachine = new Executive.StateMachine<>(this);
         stateMachine.update();
@@ -33,12 +38,19 @@ public class Manual extends RobotHardware {
     public void init() {
         super.init();
         stateMachine.init();
+        armPosition = RobotConstants.ArmPosition.START;
+        left = RobotConstants.ClawPosition.OPEN;
+        right = RobotConstants.ClawPosition.OPEN;
     }
 
     @Override
     public void init_loop() {
         super.init_loop();
         stateMachine.update();
+        RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.START.getPosition());
+        RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
+        RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
+        RobotConfiguration.WRIST.getAsServo().setPosition(WRIST_CENTER);
     }
 
     @Override
@@ -56,8 +68,6 @@ public class Manual extends RobotHardware {
     public void loop() {
         super.loop();
         stateMachine.update();
-
-//        telemetry.addData("Gyro", swerveDrive.getGyroRotation3d().getX());
     }
     
     class Drive_Manual extends Executive.StateBase<Manual> {
@@ -87,7 +97,7 @@ public class Manual extends RobotHardware {
                 headingCorrection = !headingCorrection;
 
             if(primary.rightStickButtonOnce()) {
-                SwerveDrive.lastHeadingRadians = (3 * Math.PI) / 2;
+                SwerveDrive.lastHeadingRadians = (3.0 * Math.PI) / 2.0;
                 SwerveDrive.updatedHeading = true;
             }
 
@@ -104,10 +114,40 @@ public class Manual extends RobotHardware {
             } else if(primary.left_trigger > DEADZONE) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED * primary.left_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
+            } else if(primary.dpadUp()) {
+                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
+                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             } else {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             }
+
+            if(secondary.rightTriggerOnce()) {
+                right = right.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
+            } else if(secondary.rightBumperOnce()) {
+                right = RobotConstants.ClawPosition.CLOSE;
+            }
+
+            if(secondary.leftTriggerOnce()) {
+                left = left.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
+            } else if(secondary.leftBumperOnce()) {
+                left = RobotConstants.ClawPosition.CLOSE;
+            }
+
+            if(-secondary.left_stick_y > DEADZONE) {
+                armPosition = RobotConstants.ArmPosition.BACK_BOARD;
+            } else if(-secondary.left_stick_y < -DEADZONE) {
+                armPosition = RobotConstants.ArmPosition.GRAB;
+            } else if(-secondary.right_stick_y > DEADZONE) {
+                armPosition = RobotConstants.ArmPosition.HOLD;
+            }
+
+            RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
+            RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
+
+            RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(left.getLeftPos());
+            RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(right.getRightPos());
+            RobotConfiguration.WRIST.getAsServo().setPosition(WRIST_CENTER);
         }
     }
 }

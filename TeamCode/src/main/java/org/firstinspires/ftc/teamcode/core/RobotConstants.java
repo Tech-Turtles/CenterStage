@@ -18,7 +18,7 @@ public final class RobotConstants {
             new PwmControl.PwmRange(500, 2500, 5000);
 
     public static final PwmControl.PwmRange AXON_PWM =
-            new PwmControl.PwmRange(510, 2490, 5000);
+            new PwmControl.PwmRange(520, 2480, 5000);
 
     public static final int DRIVE_TICKS_PER_METER = 1230;
 
@@ -32,7 +32,7 @@ public final class RobotConstants {
     // allowing robot to continue its momentum before correcting
     public static double HEADING_TIME = 0.1;
 
-    public static final String BACK_PARK = "Back Park";
+    public static final String BACK_PARK = "BackPark";
     //ToDo Incorporate path constants into routine enum
     public enum AutonomousRoutine {
         PARK,
@@ -42,6 +42,7 @@ public final class RobotConstants {
     }
 
     // Mechanism Constants
+    public static double WRIST_CENTER = 0.43;
     public static double INTAKE_SPEED = 1.0;
     public static double OUTTAKE_SPEED = -0.7;
     public enum IntakePosition {
@@ -60,8 +61,8 @@ public final class RobotConstants {
     }
 
     public enum ClawPosition {
-        OPEN(0.0, 0.0),
-        CLOSE(0.0, 0.0);
+        OPEN(0.55, 0.76),
+        CLOSE(1.0, 1.0);
         private final double leftPos, rightPos;
         ClawPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -86,8 +87,8 @@ public final class RobotConstants {
     public enum ArmPosition {
         START(0.0, 0.0),
         GRAB(0.0, 0.0),
-        HOLD(0.0, 0.0),
-        BACK_BOARD(0.0, 0.0),
+        HOLD(0.5, 0.5),
+        BACK_BOARD(0.85, 0.85),
         SPIKE(0.0, 0.0);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {

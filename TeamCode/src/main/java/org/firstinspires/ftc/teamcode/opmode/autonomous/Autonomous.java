@@ -36,7 +36,7 @@ public class Autonomous extends RobotHardware {
         }
     }
 
-    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Left", group="B")
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Left F", group="B")
     public static class AutoBlueBackBoard extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.BLUE;
@@ -62,9 +62,16 @@ public class Autonomous extends RobotHardware {
     }
 
     @Override
+    public void init_loop() {
+        super.init_loop();
+        telemetry.addData("Pose", swerveDrive.getPose());
+    }
+
+    @Override
     public void loop() {
         super.loop();
         robotStateContext.update();
+        telemetry.addData("Pose", swerveDrive.getPose());
         telemetry.addData("State ", robotStateContext.getCurrentState());
         if(packet != null) {
             packet.put("State: ", robotStateContext.getCurrentState());

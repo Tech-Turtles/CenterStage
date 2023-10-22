@@ -111,11 +111,11 @@ public enum RobotConfiguration {
     ),
     ODOMETRY_PARALLEL_LEFT(
             new Encoder("Front Left Drive")
-            .setDirection(Encoder.Direction.REVERSE)
+            .setDirection(Encoder.Direction.FORWARD)
     ),
     ODOMETRY_PARALLEL_RIGHT(
             new Encoder("Front Right Drive")
-            .setDirection(Encoder.Direction.FORWARD)
+            .setDirection(Encoder.Direction.REVERSE)
     ),
     ODOMETRY_PERPENDICULAR(
             new Encoder("Back Left Drive")
@@ -172,6 +172,12 @@ public enum RobotConfiguration {
             .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
+    ),
+    WRIST(
+            new Servo("Wrist")
+                    .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+                    .configurePWMRange(RobotConstants.AXON_PWM)
+                    .configureScale(0.0, 1.0)
     );
 
     private final HardwareDevice device;

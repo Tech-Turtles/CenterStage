@@ -17,7 +17,7 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 14.72; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = 0.0; // in; offset of the lateral wheel
+    public static double FORWARD_OFFSET = 7.3; // in; offset of the lateral wheel
 
     private final Encoder leftEncoder, rightEncoder, frontEncoder;
     public static double X_MULTIPLIER = 0.9404384; // Multiplier in the X direction
@@ -36,7 +36,7 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
     }
 
     public static double encoderTicksToInches(double ticks) {
-        return WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV;
+        return (WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV) * 0.0254;
     }
 
     @NonNull

@@ -334,7 +334,7 @@ public class SwerveDrive {
      */
     public Pose2d getPose() {
         com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
-        return new Pose2d(poseEstimate.getX() * 0.0254, poseEstimate.getY() * 0.0254,
+        return new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
                 new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY()));
     }
 
