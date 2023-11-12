@@ -75,7 +75,7 @@ public class SwerveDrive {
     /**
      * Swerve IMU device for sensing the heading of the robot.
      */
-    private IMU imu;
+    private final IMU imu;
     /**
      * The last heading set in radians.
      */
@@ -408,6 +408,7 @@ public class SwerveDrive {
      * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0.
      */
     public void zeroGyro() {
+        imu.update();
         imu.setOffset(imu.getRawRotation3d());
         swerveController.lastAngleScalar = 0;
         lastHeadingRadians = 0;
@@ -550,9 +551,7 @@ public class SwerveDrive {
     }
 
     /**
-     * Update odometry should be run every loop. Synchronizes module absolute encoders with relative encoders
-     * periodically. In simulation mode will also post the pose of each module. Updates SmartDashboard with module encoder
-     * readings and states.
+     * Update odometry should be run every loop.
      */
     public void updateOdometry() {
         // Update odometry

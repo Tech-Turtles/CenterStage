@@ -18,7 +18,16 @@ public class Autonomous extends RobotHardware {
     public static StartPosition robotStartPos = StartPosition.AUDIENCE;
     private Executive.RobotStateMachineContextInterface robotStateContext;
 
-    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Left", group="A")
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Test", group="A")
+    public static class Test extends Autonomous {
+        @Override public void init() {
+            robotColor = AllianceColor.BLUE;
+            robotStartPos = StartPosition.BACK_BOARD;
+            super.init();
+        }
+    }
+
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Left", group="B")
     public static class AutoRedAudience extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.RED;
@@ -27,7 +36,7 @@ public class Autonomous extends RobotHardware {
         }
     }
 
-    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Right", group="A")
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Right", group="B")
     public static class AutoRedBackBoard extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.RED;
@@ -36,7 +45,7 @@ public class Autonomous extends RobotHardware {
         }
     }
 
-    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Left F", group="B")
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Left", group="C")
     public static class AutoBlueBackBoard extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.BLUE;
@@ -45,7 +54,7 @@ public class Autonomous extends RobotHardware {
         }
     }
 
-    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Right", group="B")
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Right", group="C")
     public static class AutoBlueAudience extends Autonomous {
         @Override public void init() {
             robotColor = AllianceColor.BLUE;

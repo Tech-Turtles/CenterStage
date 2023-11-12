@@ -4,34 +4,37 @@
         <LynxModule name="Expansion Hub 173" port="173">
             <LynxEmbeddedIMU            name="IMU 1"                port="0" bus="0" />
 
-            <goBILDA5202SeriesMotor     name="Front Left Drive"     port="0" />
-            <ContinuousRotationServo    name="Front Left Angle"     port="0" />
-            <AnalogInput                name="Front Left Encoder"   port="0" />
+            <goBILDA5202SeriesMotor     name = "Front Left Drive"     port = "0" />
+            <ContinuousRotationServo    name = "Front Left Angle"     port = "0" />
+            <AnalogInput                name = "Front Left Encoder"   port = "0" />
 
-            <goBILDA5202SeriesMotor     name="Front Right Drive"    port="3" />
-            <ContinuousRotationServo    name="Front Right Angle"    port="3" />
-            <AnalogInput                name="Front Right Encoder"  port="3" />
+            <goBILDA5202SeriesMotor     name =" Front Right Drive"    port = "3" />
+            <ContinuousRotationServo    name =" Front Right Angle"    port = "3" />
+            <AnalogInput                name =" Front Right Encoder"  port = "3" />
 
-            <goBILDA5202SeriesMotor     name="Back Left Drive"      port="1" />
-            <ContinuousRotationServo    name="Back Left Angle"      port="1" />
-            <AnalogInput                name="Back Left Encoder"    port="1" />
+            <goBILDA5202SeriesMotor     name = "Back Left Drive"      port = "1" />
+            <ContinuousRotationServo    name = "Back Left Angle"      port = "1" />
+            <AnalogInput                name = "Back Left Encoder"    port = "1" />
 
-            <goBILDA5202SeriesMotor     name="Back Right Drive"     port="2" />
-            <ContinuousRotationServo    name="Back Right Angle"     port="2" />
-            <AnalogInput                name="Back Right Encoder"   port="2" />
+            <goBILDA5202SeriesMotor     name = "Back Right Drive"     port = "2" />
+            <ContinuousRotationServo    name = "Back Right Angle"     port = "2" />
+            <AnalogInput                name = "Back Right Encoder"   port = "2" />
 
-            <Servo                      name = "Arm Left"               port = "4"/>
-            <Servo                      name = "Arm Right"               port = "5"/>
+            <Servo                      name = "Arm Left"             port = "4"/>
+            <Servo                      name = "Arm Right"            port = "5"/>
         </LynxModule>
     </LynxUsbDevice>
     <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ3M0WDC" parentModuleAddress="2">
         <LynxModule name="Expansion Hub 2" port="2">
-            <goBILDA5202SeriesMotor     name="Intake"               port="0" />
-            <Servo                      name = "Claw Right"               port = "1"/>
-            <Servo                      name = "Claw Left"               port = "0"/>
-            <Servo                      name = "Wrist"               port = "3"/>
+            <goBILDA5202SeriesMotor     name = "Intake"             port = "0"/>
+            <goBILDA5202SeriesMotor     name = "Intake"             port = "1"/>
+            <goBILDA5202SeriesMotor     name = "Slide Right"        port = "2"/>
+            <goBILDA5202SeriesMotor     name = "Slide Left"         port = "3"/>
+            <Servo                      name = "Claw Right"         port = "1"/>
+            <Servo                      name = "Claw Left"          port = "0"/>
+            <Servo                      name = "Wrist"              port = "3"/>
             <Servo                      name = "Ramp"               port = "5"/>
         </LynxModule>
     </LynxUsbDevice>
-<!--    <Webcam name="Webcam 1" serialNumber="6F22D62F" />-->
+    <Webcam name="Webcam 1" serialNumber="6F22D62F" />
 </Robot>

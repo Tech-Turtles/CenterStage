@@ -7,11 +7,16 @@ import static org.firstinspires.ftc.teamcode.core.RobotConstants.OUTTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.WRIST_CENTER;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
+import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.swerve.SwerveDrive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
@@ -22,12 +27,14 @@ import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 public class Manual extends RobotHardware {
     public static double precisionMode = 1.0;
     private final double precisionPercentage = 0.35;
-    public static boolean fieldRelative = false;
+    public static boolean fieldRelative = true;
     public static boolean headingCorrection = true;
     private final Executive.StateMachine<Manual> stateMachine;
 
     private RobotConstants.ClawPosition left = RobotConstants.ClawPosition.OPEN, right = RobotConstants.ClawPosition.OPEN;
     private RobotConstants.ArmPosition armPosition = RobotConstants.ArmPosition.START;
+
+    public static double liftDownSpeed = 1.0, liftSpeed = 1.0;
 
     public Manual() {
         stateMachine = new Executive.StateMachine<>(this);
@@ -57,11 +64,15 @@ public class Manual extends RobotHardware {
     public void start() {
         super.start();
         stateMachine.changeState(Executive.StateMachine.StateType.DRIVE, new Drive_Manual());
+        stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Manual());
 
         if(fieldRelative)
             primary.setLedColor(0.0, 0.0, 1.0, -1);
         else
             primary.setLedColor(1.0, 1.0, 0.0, -1);
+
+        swerveDrive.zeroGyro();
+        swerveDrive.resetOdometry(new Pose2d());
     }
 
     @Override
@@ -87,7 +98,7 @@ public class Manual extends RobotHardware {
 
             if (primary.BOnce()) {
                 fieldRelative = !fieldRelative;
-                if(fieldRelative)
+                if (fieldRelative)
                     primary.setLedColor(0.0, 0.0, 1.0, -1);
                 else
                     primary.setLedColor(1.0, 1.0, 0.0, -1);
@@ -96,7 +107,7 @@ public class Manual extends RobotHardware {
             if (primary.XOnce())
                 headingCorrection = !headingCorrection;
 
-            if(primary.rightStickButtonOnce()) {
+            if (primary.rightStickButtonOnce()) {
                 SwerveDrive.lastHeadingRadians = (3.0 * Math.PI) / 2.0;
                 SwerveDrive.updatedHeading = true;
             }
@@ -108,16 +119,19 @@ public class Manual extends RobotHardware {
             swerveDrive.drive(new Translation2d(xV, yV), thetaV, fieldRelative, true, headingCorrection);
             swerveDrive.updateOdometry();
 
-            if(primary.right_trigger > DEADZONE) {
+            if (primary.right_trigger > DEADZONE) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED * primary.right_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
-            } else if(primary.left_trigger > DEADZONE) {
+            } else if (primary.left_trigger > DEADZONE) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED * primary.left_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
-            } else if(primary.dpadUp()) {
+            } else if (primary.dpadUp()) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
-            } else {
+            } else if (primary.dpadDown()) {
+                RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
+                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
+            }else {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             }
@@ -134,13 +148,12 @@ public class Manual extends RobotHardware {
                 left = RobotConstants.ClawPosition.CLOSE;
             }
 
-            if(-secondary.left_stick_y > DEADZONE) {
+            if(-secondary.right_stick_y > DEADZONE)
                 armPosition = RobotConstants.ArmPosition.BACK_BOARD;
-            } else if(-secondary.left_stick_y < -DEADZONE) {
+            else if(-secondary.right_stick_y < -DEADZONE)
                 armPosition = RobotConstants.ArmPosition.GRAB;
-            } else if(-secondary.right_stick_y > DEADZONE) {
+            else if(secondary.rightStickButtonOnce())
                 armPosition = RobotConstants.ArmPosition.HOLD;
-            }
 
             RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
             RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
@@ -148,6 +161,69 @@ public class Manual extends RobotHardware {
             RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(left.getLeftPos());
             RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(right.getRightPos());
             RobotConfiguration.WRIST.getAsServo().setPosition(WRIST_CENTER);
+        }
+    }
+
+    class Slide_Position extends Executive.StateBase<Manual> {
+        private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+        private final double setpoint;
+        private MotionProfile activeProfile;
+        private double profileStart;
+        private final PIDFController controller = RobotConstants.slideController;
+
+
+        Slide_Position(double setpoint) {
+            this.setpoint = setpoint;
+        }
+
+        @Override
+        public void init(Executive.StateMachine<Manual> stateMachine) {
+            super.init(stateMachine);
+            profileStart = stateTimer.seconds();
+            MotionState start = new MotionState(left.getEncoderValue(), 0, 0, 0);
+            MotionState goal = new MotionState(setpoint, 0, 0, 0);
+            activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1800, 1200);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
+            if(Math.abs(secondary.left_stick_y) > 0.2) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Manual());
+                profileStart = 0;
+                activeProfile = null;
+                return;
+            }
+
+            double profileTime = stateTimer.seconds() - profileStart;
+
+            MotionState motionState = activeProfile.get(profileTime);
+
+            controller.setTargetPosition(motionState.getX());
+            controller.setTargetVelocity(motionState.getV());
+            controller.setTargetAcceleration(motionState.getA());
+
+            left.setPower(controller.update(left.getEncoderValue(), left.getVelocity()));
+            right.setPower(controller.update(left.getEncoderValue(), left.getVelocity()));
+
+            isDone = (stateTimer.seconds() - profileStart) > activeProfile.duration();
+        }
+    }
+
+    class Slide_Manual extends Executive.StateBase<Manual> {
+
+        private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+        @Override
+        public void update() {
+            super.update();
+            if(Math.abs(secondary.left_stick_y) < 0.2) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(left.getEncoderValue()));
+                return;
+            }
+            double power = -secondary.left_stick_y < 0 ? -secondary.left_stick_y * liftDownSpeed : -secondary.left_stick_y * liftSpeed;
+            left.setPower(power);
+            right.setPower(power);
         }
     }
 }

@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.utility.pathplanner.path;
 
-import java.util.Objects;
-
 import org.firstinspires.ftc.teamcode.utility.math.util.Units;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.json.JSONObject;
+
+import java.util.Objects;
 
 /** Kinematic path following constraints */
 public class PathConstraints {

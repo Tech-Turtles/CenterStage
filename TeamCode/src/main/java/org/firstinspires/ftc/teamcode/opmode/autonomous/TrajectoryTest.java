@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.swerve.SwerveDriveController;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Config
+@Disabled
 @Autonomous(name = "Trajectory Test", group = "E")
 public class TrajectoryTest extends RobotHardware {
 

@@ -133,31 +133,31 @@ public enum RobotConfiguration {
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
-//    SLIDE_LEFT(
-//            new Motor("Slide Left")
-//            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
-//            .setPIDTolerance(2.0)
-//            .configureDirection(DcMotorSimple.Direction.FORWARD)
-//            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-//            .setType(MotorTypes.OTHER)
-//    ),
-//    SLIDE_RIGHT(
-//            new Motor("Slide Right")
-//            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
-//            .setPIDTolerance(2.0)
-//            .configureDirection(DcMotorSimple.Direction.REVERSE)
-//            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
-//            .setType(MotorTypes.OTHER)
-//    ),
+    SLIDE_LEFT(
+            new Motor("Slide Left")
+            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+            .setPIDTolerance(2.0)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
+            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            .setType(MotorTypes.OTHER)
+    ),
+    SLIDE_RIGHT(
+            new Motor("Slide Right")
+            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+            .setPIDTolerance(2.0)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            .setType(MotorTypes.OTHER)
+    ),
     ARM_LEFT(
             new Servo("Arm Left")
-            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
     ARM_RIGHT(
             new Servo("Arm Right")
-            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
@@ -175,9 +175,9 @@ public enum RobotConfiguration {
     ),
     WRIST(
             new Servo("Wrist")
-                    .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
-                    .configurePWMRange(RobotConstants.AXON_PWM)
-                    .configureScale(0.0, 1.0)
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+            .configurePWMRange(RobotConstants.AXON_PWM)
+            .configureScale(0.0, 1.0)
     );
 
     private final HardwareDevice device;

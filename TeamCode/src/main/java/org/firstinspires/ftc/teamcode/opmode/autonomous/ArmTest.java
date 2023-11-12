@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.profile.MotionProfile;
-import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
-import com.acmerobotics.roadrunner.profile.MotionState;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
@@ -17,7 +14,7 @@ public class ArmTest extends RobotHardware {
             left = RobotConfiguration.ARM_LEFT.getAsServo(),
             right = RobotConfiguration.ARM_RIGHT.getAsServo();
 
-    public static double l1 = 0.5, l2 = 0.5, r1 = 0.5, r2 = 0.5, l3 = 0.5, r3 = 0.5;
+    public static double l1 = 0.0, l2 = 0.5, l3 = 0.85, r1 = 0.0, r2 = 0.5, r3 = 0.85;
     public static int state = 1;
     public static boolean enabled = false;
 

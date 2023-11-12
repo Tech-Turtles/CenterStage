@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModulePhysicalCharacteristics;
@@ -19,6 +21,8 @@ public final class RobotConstants {
 
     public static final PwmControl.PwmRange AXON_PWM =
             new PwmControl.PwmRange(520, 2480, 5000);
+
+    public static PIDFController slideController = new PIDFController(new PIDCoefficients(), 0, 0, 0);
 
     public static final int DRIVE_TICKS_PER_METER = 1230;
 
@@ -61,7 +65,7 @@ public final class RobotConstants {
     }
 
     public enum ClawPosition {
-        OPEN(0.55, 0.76),
+        OPEN(0.5, 0.71),
         CLOSE(1.0, 1.0);
         private final double leftPos, rightPos;
         ClawPosition(double leftPos, double rightPos) {
@@ -85,11 +89,11 @@ public final class RobotConstants {
     }
 
     public enum ArmPosition {
-        START(0.0, 0.0),
-        GRAB(0.0, 0.0),
+        START(0.05, 0.05),
+        GRAB(0.02, 0.02),
         HOLD(0.5, 0.5),
-        BACK_BOARD(0.85, 0.85),
-        SPIKE(0.0, 0.0);
+        BACK_BOARD(0.98, 0.98),
+        SPIKE(0.9, 0.9);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;

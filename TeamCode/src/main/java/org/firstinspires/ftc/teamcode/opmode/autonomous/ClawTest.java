@@ -2,12 +2,14 @@ package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
 
 @Config
+@Disabled
 @Autonomous(name = "Claw Test", group = "E")
 public class ClawTest extends RobotHardware {
        private final Servo
