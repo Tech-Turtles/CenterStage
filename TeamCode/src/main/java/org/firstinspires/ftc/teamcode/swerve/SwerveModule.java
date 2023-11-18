@@ -63,10 +63,10 @@ public class SwerveModule {
 
         // Create motors from configuration and reset them to defaults.
         angleServo = moduleConfiguration.angleServo;
-        angleServo.configurePIDF(configuration.anglePIDF.p, configuration.anglePIDF.i,
-                configuration.anglePIDF.d, configuration.anglePIDF.f);
+//        angleServo.configurePIDF(configuration.anglePIDF.p, configuration.anglePIDF.i,
+//                configuration.anglePIDF.d, configuration.anglePIDF.f);
         driveMotor = moduleConfiguration.driveMotor;
-        driveMotor.configurePID(configuration.velocityPIDF.p, configuration.velocityPIDF.i, configuration.velocityPIDF.d);
+//        driveMotor.configurePID(configuration.velocityPIDF.p, configuration.velocityPIDF.i, configuration.velocityPIDF.d);
 
         // Config angle encoders
         absoluteEncoder = moduleConfiguration.absoluteEncoder;
@@ -108,7 +108,7 @@ public class SwerveModule {
         // Prevent module rotation if angle is the same as the previous angle.
         if (desiredState.angle != lastState.angle) {
 //            double moduleFF = desiredState.omegaRadPerSecond * configuration.moduleSteerFFCL;
-            angleServo.setReference(desiredState.angle.getDegrees(), 0.0);
+            angleServo.setReference(desiredState.angle.getDegrees());
         } else {
             angleServo.setPower(0.0);
         }
@@ -122,7 +122,7 @@ public class SwerveModule {
      * @param angle Angle in degrees.
      */
     public void setAngle(double angle) {
-        angleServo.setReference(angle, 0);
+        angleServo.setReference(angle);
         lastState.angle = Rotation2d.fromDegrees(angle);
     }
 

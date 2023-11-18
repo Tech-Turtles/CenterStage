@@ -71,7 +71,7 @@ public class SwerveDrive {
      * Correct chassis velocity in {@link SwerveDrive#drive(Translation2d, double, boolean, boolean)} using 254's
      * correction.
      */
-    public  boolean             chassisVelocityCorrection    = false;
+    public  boolean             chassisVelocityCorrection    = true;
     /**
      * Swerve IMU device for sensing the heading of the robot.
      */
@@ -334,8 +334,8 @@ public class SwerveDrive {
      */
     public Pose2d getPose() {
         com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
-        return new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
-                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY()));
+        return new Pose2d(poseEstimate.getX() * 0.0254, poseEstimate.getY() * 0.0254,
+                new Rotation2d(poseEstimate.headingVec().getX() * 0.0254, poseEstimate.headingVec().getY() * 0.0254));
     }
 
     /**
@@ -369,7 +369,7 @@ public class SwerveDrive {
      * @param pose The pose to set the odometry to
      */
     public void resetOdometry(Pose2d pose) {
-        odometry.setPoseEstimate(new com.acmerobotics.roadrunner.geometry.Pose2d(pose.getX(), pose.getY(), pose.getRotation().getRadians()));
+        odometry.setPoseEstimate(new com.acmerobotics.roadrunner.geometry.Pose2d(pose.getX() / 0.0254, pose.getY() / 0.0254, pose.getRotation().getRadians()));
 //        swerveDrivePoseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
     }
 

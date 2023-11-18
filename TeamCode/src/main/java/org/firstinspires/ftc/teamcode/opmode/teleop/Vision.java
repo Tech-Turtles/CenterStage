@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
+import org.firstinspires.ftc.teamcode.hardware.Webcam;
+
 @TeleOp(name="Vision", group="B")
-@Disabled
 public class Vision extends Manual {
+    Webcam webcam = RobotConfiguration.WEBCAM.getAsWebcam();
 
     @Override
     public void init() {
@@ -25,5 +28,15 @@ public class Vision extends Manual {
     @Override
     public void loop() {
         super.loop();
+        try {
+            telemetry.addData("Red Rect", webcam.getProcessor().getRedRect());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            telemetry.addData("Blue Rect", webcam.getProcessor().getBlueRect());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

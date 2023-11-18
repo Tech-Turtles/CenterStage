@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
+import org.firstinspires.ftc.teamcode.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.swerve.SwerveDrive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
@@ -26,7 +27,7 @@ import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 @TeleOp(name="Manual", group="A")
 public class Manual extends RobotHardware {
     public static double precisionMode = 1.0;
-    private final double precisionPercentage = 0.35;
+    private final double precisionPercentage = 0.4;
     public static boolean fieldRelative = true;
     public static boolean headingCorrection = true;
     private final Executive.StateMachine<Manual> stateMachine;
@@ -34,7 +35,7 @@ public class Manual extends RobotHardware {
     private RobotConstants.ClawPosition left = RobotConstants.ClawPosition.OPEN, right = RobotConstants.ClawPosition.OPEN;
     private RobotConstants.ArmPosition armPosition = RobotConstants.ArmPosition.START;
 
-    public static double liftDownSpeed = 1.0, liftSpeed = 1.0;
+    public static double slideDownSpeed = 1.0, slideSpeed = 1.0, liftSpeed = 1.0;
 
     public Manual() {
         stateMachine = new Executive.StateMachine<>(this);
@@ -54,6 +55,8 @@ public class Manual extends RobotHardware {
     public void init_loop() {
         super.init_loop();
         stateMachine.update();
+        RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(RobotConstants.ClawPosition.CLOSE.getLeftPos());
+        RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(RobotConstants.ClawPosition.CLOSE.getRightPos());
         RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.START.getPosition());
         RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
         RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
@@ -131,29 +134,36 @@ public class Manual extends RobotHardware {
             } else if (primary.dpadDown()) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
-            }else {
+            } else {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             }
 
-            if(secondary.rightTriggerOnce()) {
-                right = right.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
-            } else if(secondary.rightBumperOnce()) {
+            if (secondary.leftTriggerOnce()) {
+//                right = right.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
+                right = RobotConstants.ClawPosition.OPEN;
+            } else if (secondary.leftBumperOnce()) {
                 right = RobotConstants.ClawPosition.CLOSE;
             }
 
-            if(secondary.leftTriggerOnce()) {
-                left = left.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
-            } else if(secondary.leftBumperOnce()) {
+            if (secondary.rightTriggerOnce()) {
+//                left = left.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
+                left = RobotConstants.ClawPosition.OPEN;
+            } else if (secondary.rightBumperOnce()) {
                 left = RobotConstants.ClawPosition.CLOSE;
             }
 
-            if(-secondary.right_stick_y > DEADZONE)
-                armPosition = RobotConstants.ArmPosition.BACK_BOARD;
-            else if(-secondary.right_stick_y < -DEADZONE)
+            if (-secondary.right_stick_y > DEADZONE)
                 armPosition = RobotConstants.ArmPosition.GRAB;
-            else if(secondary.rightStickButtonOnce())
+            else if (-secondary.right_stick_y < -DEADZONE)
+                armPosition = RobotConstants.ArmPosition.BACK_BOARD;
+            else if (secondary.rightStickButtonOnce())
                 armPosition = RobotConstants.ArmPosition.HOLD;
+            else if (secondary.XOnce())
+                armPosition = RobotConstants.ArmPosition.DOWN;
+
+            double liftPower = secondary.dpadUp() ? liftSpeed : (secondary.dpadDown() ? -liftSpeed : 0.0);
+            RobotConfiguration.LIFT.getAsMotor().setPower(liftPower);
 
             RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
             RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
@@ -166,6 +176,7 @@ public class Manual extends RobotHardware {
 
     class Slide_Position extends Executive.StateBase<Manual> {
         private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+        private final Encoder slides = RobotConfiguration.LIFT_ENCODER.getAsEncoder();
         private final double setpoint;
         private MotionProfile activeProfile;
         private double profileStart;
@@ -180,7 +191,7 @@ public class Manual extends RobotHardware {
         public void init(Executive.StateMachine<Manual> stateMachine) {
             super.init(stateMachine);
             profileStart = stateTimer.seconds();
-            MotionState start = new MotionState(left.getEncoderValue(), 0, 0, 0);
+            MotionState start = new MotionState(slides.getCurrentPosition(), 0, 0, 0);
             MotionState goal = new MotionState(setpoint, 0, 0, 0);
             activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1800, 1200);
         }
@@ -203,9 +214,9 @@ public class Manual extends RobotHardware {
             controller.setTargetPosition(motionState.getX());
             controller.setTargetVelocity(motionState.getV());
             controller.setTargetAcceleration(motionState.getA());
-
-            left.setPower(controller.update(left.getEncoderValue(), left.getVelocity()));
-            right.setPower(controller.update(left.getEncoderValue(), left.getVelocity()));
+            double power = controller.update(slides.getCurrentPosition(), slides.getRawVelocity());
+            left.setPower(power);
+            right.setPower(power);
 
             isDone = (stateTimer.seconds() - profileStart) > activeProfile.duration();
         }
@@ -217,11 +228,11 @@ public class Manual extends RobotHardware {
         @Override
         public void update() {
             super.update();
-            if(Math.abs(secondary.left_stick_y) < 0.2) {
-                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(left.getEncoderValue()));
-                return;
-            }
-            double power = -secondary.left_stick_y < 0 ? -secondary.left_stick_y * liftDownSpeed : -secondary.left_stick_y * liftSpeed;
+//            if(Math.abs(secondary.left_stick_y) < 0.2) {
+//                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(left.getEncoderValue()));
+//                return;
+//            }
+            double power = -secondary.left_stick_y < 0 ? -secondary.left_stick_y * slideDownSpeed : -secondary.left_stick_y * slideSpeed;
             left.setPower(power);
             right.setPower(power);
         }

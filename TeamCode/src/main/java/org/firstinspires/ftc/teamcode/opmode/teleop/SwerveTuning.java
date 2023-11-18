@@ -14,12 +14,12 @@ import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 @TeleOp(name = "Swerve Tuning", group = "E")
 public class SwerveTuning extends RobotHardware {
     public static double
-        fLOffset = 158.5, fROffset = 121.0, bLOffset = 311.2, bROffset = 78.0;
+        fLOffset = 79.3-5.0, fROffset = 311.0-2.5, bLOffset = 138.7-18.9-0.6, bROffset = 158.0-2.7;
 
     public static TuneState state = TuneState.OFFSET;
     public static WheelPosition angleWheel = WheelPosition.FRONT_LEFT;
 
-    public static double aP = 0.08, aI = 0.0, aD = 0.0, aFF = 0.0, angleSetpointStart = 0.0, angleSetpointEnd = 30.0;
+    public static double aP = 0.08, aI = 0.0, aD = 0.0, aFF = 0.0, angleSetpointStart = 0.0, angleSetpointEnd = 30.0, kStatic = 0.0;
     private boolean reverse = false;
     private ElapsedTimer changeDirection;
     public static double changeDirectionTime = 1.0;
@@ -35,7 +35,8 @@ public class SwerveTuning extends RobotHardware {
         DRIVE,
         OFFSET,
         ANGLE_PID,
-        DRIVE_PID
+        DRIVE_PID,
+        kStatic
     }
     private AbsoluteEncoder frontLeft, frontRight, backLeft, backRight;
 
@@ -98,6 +99,23 @@ public class SwerveTuning extends RobotHardware {
                     }
                     servo.setReference(angleSetpointEnd, aFF);
                 }
+                break;
+            case kStatic:
+                ContinuousServo s;
+                switch (angleWheel) {
+                    case FRONT_LEFT:
+                        s = RobotConfiguration.ANGLE_FRONT_LEFT.getAsContinuousServo();
+                        break;
+                    case FRONT_RIGHT:
+                        s = RobotConfiguration.ANGLE_FRONT_RIGHT.getAsContinuousServo();
+                        break;
+                    case BACK_LEFT:
+                        s = RobotConfiguration.ANGLE_BACK_LEFT.getAsContinuousServo();
+                        break;
+                    default:
+                        s = RobotConfiguration.ANGLE_BACK_RIGHT.getAsContinuousServo();
+                }
+                s.setPower(kStatic);
                 break;
         }
         telemetry.addData("Front Left Position", frontLeft.getCurrentPosition());

@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode.opmode.autonomous;
 
+import static org.firstinspires.ftc.teamcode.core.RobotConstants.WRIST_CENTER;
+
 import org.firstinspires.ftc.teamcode.core.AutonomousStateContext;
+import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
@@ -73,7 +77,12 @@ public class Autonomous extends RobotHardware {
     @Override
     public void init_loop() {
         super.init_loop();
-        telemetry.addData("Pose", swerveDrive.getPose());
+        RobotConfiguration.RAMP.getAsServo().setPosition(RobotConstants.IntakePosition.START.getPosition());
+        RobotConfiguration.ARM_LEFT.getAsServo().setPosition(RobotConstants.ArmPosition.HOLD.getLeftPos());
+        RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(RobotConstants.ArmPosition.HOLD.getRightPos());
+        RobotConfiguration.WRIST.getAsServo().setPosition(WRIST_CENTER);
+        RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(RobotConstants.ClawPosition.CLOSE.getLeftPos());
+        RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(RobotConstants.ClawPosition.CLOSE.getRightPos());
     }
 
     @Override

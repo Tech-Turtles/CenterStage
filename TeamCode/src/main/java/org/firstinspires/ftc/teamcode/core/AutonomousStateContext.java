@@ -1,25 +1,41 @@
 package org.firstinspires.ftc.teamcode.core;
 
-import com.acmerobotics.dashboard.config.Config;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.ARM_LEFT;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.ARM_RIGHT;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.CLAW_LEFT;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.CLAW_RIGHT;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.INTAKE;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.RAMP;
+import static org.firstinspires.ftc.teamcode.utility.autonomous.Executive.StateMachine.StateType;
 
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.roadrunner.control.PIDFController;
+import com.acmerobotics.roadrunner.profile.MotionProfile;
+import com.acmerobotics.roadrunner.profile.MotionProfileGenerator;
+import com.acmerobotics.roadrunner.profile.MotionState;
+
+import org.firstinspires.ftc.teamcode.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
+import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.opmode.autonomous.Autonomous;
+import org.firstinspires.ftc.teamcode.opmode.teleop.Manual;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
+import org.firstinspires.ftc.teamcode.utility.autonomous.SpikePosition;
 import org.firstinspires.ftc.teamcode.utility.autonomous.StartPosition;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.utility.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.controllers.PPHolonomicDriveController;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerPath;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerTrajectory;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.util.PIDConstants;
+import org.opencv.core.Rect;
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
-
-import static org.firstinspires.ftc.teamcode.utility.autonomous.Executive.StateMachine.StateType;
-import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.*;
 
 @Config
 public class AutonomousStateContext implements Executive.RobotStateMachineContextInterface {
@@ -36,6 +52,11 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
     private Consumer<ChassisSpeeds> output;
 
     private final PathPlannerTrajectory[] trajectories = new PathPlannerTrajectory[6];
+    // pixels, x-coordinates
+    public static double leftBound = 180, rightBound = 460;
+    // seconds
+    public static double visionTime = 4.0, spikePlace = 1.0;
+    public SpikePosition spikePosition = SpikePosition.NONE;
 
     public static RobotConstants.AutonomousRoutine routine = RobotConstants.AutonomousRoutine.PARK;
     public AutonomousStateContext(Autonomous autonomous, AllianceColor allianceColor, StartPosition startPosition) {
@@ -51,11 +72,11 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         stateMachine.init();
 
         controller = new PPHolonomicDriveController(
-                new PIDConstants(1.0, 0.0, 0.0),
-                new PIDConstants(2.0, 0.0, 0.0),
+                new PIDConstants(3.0, 0.0, 0.0),
+                new PIDConstants(5.0, 0.0, 0.0),
                 0.013,
-                2.2,
-                0.2032
+                1.8,
+                0.2514
         );
 
         poseSupplier = autonomous.swerveDrive::getPose;
@@ -71,6 +92,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
     @Override
     public void update() {
+        autonomous.swerveDrive.updateOdometry();
         stateMachine.update();
     }
 
@@ -128,10 +150,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         @Override
         public void update() {
             super.update();
-            opMode.telemetry.addData("State Position", opMode.swerveDrive.getPose());
-            if(opMode.primary.A()) {
-                nextState(StateType.DRIVE, new Back_Park());
-            }
+            nextState(StateType.DRIVE, new Back_Park());
         }
 
         private void setStartPosition(Pose2d pose) {
@@ -139,7 +158,151 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
-    private class Back_Park extends Executive.StateBase<Autonomous> {
+    private class Detect_Spike extends Executive.StateBase<Autonomous> {
+
+        Webcam webcam = RobotConfiguration.WEBCAM.getAsWebcam();
+
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0));
+            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
+            nextState(StateType.SLIDES, new Slide_Position(100));
+            nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.CLOSE, RobotConstants.ClawOrder.BOTH));
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            Rect rect = allianceColor.equals(AllianceColor.BLUE)
+                    ? webcam.getProcessor().getBlueRect()
+                    : webcam.getProcessor().getRedRect();
+
+            try {
+                double x = rect.x + rect.width/2.0;
+                if(x < leftBound)
+                    spikePosition = SpikePosition.LEFT;
+                else if(x > rightBound)
+                    spikePosition = SpikePosition.RIGHT;
+                else
+                    spikePosition = SpikePosition.MIDDLE;
+            } catch (NullPointerException ignore) {}
+
+            opMode.telemetry.addData("Spike", spikePosition.name());
+
+            if(stateTimer.seconds() > visionTime) {
+                webcam.stop();
+                nextState(StateType.DRIVE, new Spike());
+            }
+        }
+    }
+
+    private class Spike extends Executive.StateBase<Autonomous> {
+        private PathPlannerTrajectory generatedTrajectory;
+        private boolean hasRun = false;
+        private boolean hasDriven = false;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path = PathPlannerPath.fromPathFile("MiddleSpike");;
+//            if(spikePosition.equals(SpikePosition.RIGHT)) {
+//                path = PathPlannerPath.fromPathFile("RightSpike");
+//            } else if (spikePosition.equals(SpikePosition.LEFT)) {
+//                path = PathPlannerPath.fromPathFile("LeftSpike");
+//            } else {
+//                path = PathPlannerPath.fromPathFile("MiddleSpike");
+//            }
+
+            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(0.23, 2.13), Rotation2d.fromDegrees(180.0)));
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+
+//            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, 0.0));
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!hasDriven) {
+                if (!hasRun) {
+                    stateTimer.reset();
+                    hasRun = true;
+                }
+                double currentTime = stateTimer.seconds();
+                PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
+                output.accept(controller.calculateRobotRelativeSpeeds(poseSupplier.get(), targetState));
+
+                if (currentTime > generatedTrajectory.getTotalTimeSeconds()) {
+                    hasDriven = true;
+                    stateTimer.reset();
+//                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, -0.4, 0.0));
+                }
+            } else {
+                if(stateTimer.seconds() > 1.0) {
+//                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
+                    nextState(StateType.DRIVE, new Spike_To_Place());
+                }
+            }
+        }
+    }
+
+    private class Spike_To_Place extends Executive.StateBase<Autonomous> {
+        private PathPlannerTrajectory generatedTrajectory;
+        private boolean hasRun = false;
+        private boolean hasDriven = false;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path = null;
+            if(spikePosition.equals(SpikePosition.RIGHT)) {
+                path = PathPlannerPath.fromPathFile("RightSpikePlace");
+            } else if (spikePosition.equals(SpikePosition.LEFT)) {
+                path = PathPlannerPath.fromPathFile("LeftSpikePlace");
+            } else {
+                path = PathPlannerPath.fromPathFile("MiddleSpikePlace");
+            }
+
+            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!hasDriven) {
+                if (!hasRun) {
+                    stateTimer.reset();
+                    hasRun = true;
+                }
+                double currentTime = stateTimer.seconds();
+                PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
+                Pose2d currentPose = poseSupplier.get();
+                ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+                output.accept(targetSpeeds);
+
+                if (currentTime > generatedTrajectory.getTotalTimeSeconds()) {
+                    hasDriven = true;
+                    stateTimer.reset();
+                }
+            } else {
+                if(stateTimer.seconds() > 1.0) {
+                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.BOTH));
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
+                    nextState(StateType.DRIVE, new Place_To_Park());
+                }
+            }
+        }
+    }
+
+    private class Place_To_Park extends Executive.StateBase<Autonomous> {
         private PathPlannerTrajectory generatedTrajectory;
         private boolean hasRun = false;
         @Override
@@ -148,18 +311,11 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
             ChassisSpeeds currentSpeeds = speedsSupplier.get();
 
-            PathPlannerPath path = PathPlannerPath.fromPathFile("Forward");
-
+            PathPlannerPath path = PathPlannerPath.fromPathFile("PlacePark");
             generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
 
             opMode.swerveDrive.resetOdometry(generatedTrajectory.getInitialTargetHolonomicPose());
-
-            controller.reset(opMode.swerveDrive.getPose(), new ChassisSpeeds(0.0, 0.0, 0.0));
-            Pose2d currentPose = poseSupplier.get();
-
-            controller.reset(currentPose, currentSpeeds);
-
-            stateTimer.reset();
+            controller.reset(poseSupplier.get(), currentSpeeds);
         }
 
         @Override
@@ -172,13 +328,89 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             double currentTime = stateTimer.seconds();
             PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
             Pose2d currentPose = poseSupplier.get();
-            opMode.telemetry.addData("Pose", currentPose);
+            ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+            output.accept(targetSpeeds);
+
+            if (currentTime > generatedTrajectory.getTotalTimeSeconds())
+                nextState(StateType.DRIVE, new Stop());
+        }
+    }
+
+    private class Back_Park extends Executive.StateBase<Autonomous> {
+        private PathPlannerTrajectory generatedTrajectory;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+
+            PathPlannerPath path = PathPlannerPath.fromPathFile("AudiencePark");
+
+            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(0.31, 0.92), Rotation2d.fromDegrees(180.0)));
+
+            controller.reset(opMode.swerveDrive.getPose(), new ChassisSpeeds(0.0, 0.0, 0.0));
+            Pose2d currentPose = poseSupplier.get();
+
+            controller.reset(currentPose, currentSpeeds);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            double currentTime = stateTimer.seconds();
+            PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
+            Pose2d currentPose = poseSupplier.get();
+            opMode.telemetry.addData("Drive Pose", currentPose);
             ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
             opMode.telemetry.addData("Speeds", targetSpeeds);
             output.accept(targetSpeeds);
 
-            if(currentTime > generatedTrajectory.getTotalTimeSeconds())
+            if (currentTime > generatedTrajectory.getTotalTimeSeconds())
                 nextState(StateType.DRIVE, new Stop());
+        }
+    }
+
+    private static class Slide_Position extends Executive.StateBase<Autonomous> {
+
+        private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+        private final Encoder slides = RobotConfiguration.LIFT_ENCODER.getAsEncoder();
+        private final double setpoint;
+        private MotionProfile activeProfile;
+        private double profileStart;
+        private final PIDFController controller = RobotConstants.slideController;
+
+
+        Slide_Position(double setpoint) {
+            this.setpoint = setpoint;
+        }
+
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+            profileStart = stateTimer.seconds();
+            MotionState start = new MotionState(slides.getCurrentPosition(), 0, 0, 0);
+            MotionState goal = new MotionState(setpoint, 0, 0, 0);
+            activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1000, 600);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
+            double profileTime = stateTimer.seconds() - profileStart;
+
+            MotionState motionState = activeProfile.get(profileTime);
+
+            controller.setTargetPosition(motionState.getX());
+            controller.setTargetVelocity(motionState.getV());
+            controller.setTargetAcceleration(motionState.getA());
+            double power = controller.update(slides.getCurrentPosition(), slides.getRawVelocity());
+            left.setPower(power);
+            right.setPower(power);
+
+            isDone = (stateTimer.seconds() - profileStart) > activeProfile.duration();
         }
     }
 
@@ -282,10 +514,9 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         public void update() {
             super.update();
 
+            RAMP.getAsServo().setPosition(pos);
             if(stateTimer.seconds() < delay)
                 return;
-
-            RAMP.getAsServo().setPosition(pos);
             INTAKE.getAsMotor().setPower(power);
         }
     }

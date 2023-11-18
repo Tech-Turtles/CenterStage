@@ -36,7 +36,7 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
     }
 
     public static double encoderTicksToInches(double ticks) {
-        return (WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV) * 0.0254;
+        return (WHEEL_RADIUS * 2 * Math.PI * GEAR_RATIO * ticks / TICKS_PER_REV);
     }
 
     @NonNull

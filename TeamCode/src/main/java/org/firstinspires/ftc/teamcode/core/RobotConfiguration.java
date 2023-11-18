@@ -16,6 +16,7 @@ import org.firstinspires.ftc.teamcode.hardware.MotorTypes;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
+import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
 
 public enum RobotConfiguration {
     IMU(
@@ -27,7 +28,7 @@ public enum RobotConfiguration {
     ),
     EXPANSION_HUB(
             new ExpansionHub("Expansion Hub 2")
-            .configureBulkCachingMode(LynxModule.BulkCachingMode.MANUAL)
+            .configureBulkCachingMode(LynxModule.BulkCachingMode.OFF)
     ),
     DRIVE_FRONT_LEFT(
             new Motor("Front Left Drive")
@@ -59,22 +60,22 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_FRONT_LEFT(
             new AbsoluteEncoder("Front Left Encoder")
-            .zero(79.3)
+            .zero(79.3-5.0-0.9)
             .setInverted(false)
     ),
     ABSOLUTE_FRONT_RIGHT(
             new AbsoluteEncoder("Front Right Encoder")
-            .zero(311.0)
+            .zero(311.0-2.5-1.7)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_LEFT(
             new AbsoluteEncoder("Back Left Encoder")
-            .zero(138.7)
+            .zero(138.7-18.9-0.6-2.5)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_RIGHT(
             new AbsoluteEncoder("Back Right Encoder")
-            .zero(158.0)
+            .zero(158.0-2.7-1.5)
             .setInverted(false)
     ),
     ANGLE_FRONT_LEFT(
@@ -82,7 +83,8 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.009, 0.0, 0.0)
+            .configurePIDF(0.008, 0.0, 0.0)
+            .configureFF(0.03)
             .configureEncoder(ABSOLUTE_FRONT_LEFT.getAsAbsoluteEncoder())
     ),
     ANGLE_FRONT_RIGHT(
@@ -90,7 +92,8 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.009, 0.0, 0.0)
+            .configurePIDF(0.008, 0.0, 0.0)
+            .configureFF(0.03)
             .configureEncoder(ABSOLUTE_FRONT_RIGHT.getAsAbsoluteEncoder())
     ),
     ANGLE_BACK_LEFT(
@@ -98,7 +101,8 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.009, 0.0, 0.0)
+            .configurePIDF(0.008, 0.0, 0.0)
+            .configureFF(0.03)
             .configureEncoder(ABSOLUTE_BACK_LEFT.getAsAbsoluteEncoder())
     ),
     ANGLE_BACK_RIGHT(
@@ -106,8 +110,13 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.009, 0.0, 0.0)
+            .configurePIDF(0.008, 0.0, 0.0)
+            .configureFF(0.03)
             .configureEncoder(ABSOLUTE_BACK_RIGHT.getAsAbsoluteEncoder())
+    ),
+    LIFT_ENCODER(
+            new Encoder("Back Right Drive")
+            .setDirection(Encoder.Direction.REVERSE)
     ),
     ODOMETRY_PARALLEL_LEFT(
             new Encoder("Front Left Drive")
@@ -119,7 +128,7 @@ public enum RobotConfiguration {
     ),
     ODOMETRY_PERPENDICULAR(
             new Encoder("Back Left Drive")
-            .setDirection(Encoder.Direction.FORWARD)),
+            .setDirection(Encoder.Direction.REVERSE)),
     INTAKE(
             new Motor("Intake")
             .configureDirection(DcMotorSimple.Direction.FORWARD)
@@ -167,9 +176,10 @@ public enum RobotConfiguration {
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
+    // reversed in axon firmware
     CLAW_RIGHT(
             new Servo("Claw Right")
-            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
     ),
@@ -178,6 +188,19 @@ public enum RobotConfiguration {
             .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.REVERSE)
             .configurePWMRange(RobotConstants.AXON_PWM)
             .configureScale(0.0, 1.0)
+    ),
+    LIFT(
+            new Motor("Lift")
+            .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
+            .setPIDTolerance(5.0)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
+            .setType(MotorTypes.OTHER)
+    ),
+    WEBCAM(
+            new Webcam("Webcam")
+            .configureCameraResolution(640, 480)
+            .configureVisionProcessor(new SpikeDetectionProcessor())
     );
 
     private final HardwareDevice device;

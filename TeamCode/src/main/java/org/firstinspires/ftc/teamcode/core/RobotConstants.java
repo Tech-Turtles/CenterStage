@@ -22,7 +22,7 @@ public final class RobotConstants {
     public static final PwmControl.PwmRange AXON_PWM =
             new PwmControl.PwmRange(520, 2480, 5000);
 
-    public static PIDFController slideController = new PIDFController(new PIDCoefficients(), 0, 0, 0);
+    public static PIDFController slideController = new PIDFController(new PIDCoefficients(0.03, 0.0, 0.0), 0, 0, 0.17);
 
     public static final int DRIVE_TICKS_PER_METER = 1230;
 
@@ -46,7 +46,7 @@ public final class RobotConstants {
     }
 
     // Mechanism Constants
-    public static double WRIST_CENTER = 0.43;
+    public static double WRIST_CENTER = 0.41;
     public static double INTAKE_SPEED = 1.0;
     public static double OUTTAKE_SPEED = -0.7;
     public enum IntakePosition {
@@ -65,8 +65,8 @@ public final class RobotConstants {
     }
 
     public enum ClawPosition {
-        OPEN(0.5, 0.71),
-        CLOSE(1.0, 1.0);
+        OPEN(0.7, 0.7),
+        CLOSE(0.21, 0.23);
         private final double leftPos, rightPos;
         ClawPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -89,10 +89,11 @@ public final class RobotConstants {
     }
 
     public enum ArmPosition {
-        START(0.05, 0.05),
-        GRAB(0.02, 0.02),
-        HOLD(0.5, 0.5),
-        BACK_BOARD(0.98, 0.98),
+        START(0.1, 0.1),
+        GRAB(0.1, 0.1),
+        DOWN(0.05, 0.05),
+        HOLD(0.4, 0.4),
+        BACK_BOARD(0.96, 0.96),
         SPIKE(0.9, 0.9);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {

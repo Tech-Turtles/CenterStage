@@ -12,10 +12,7 @@ import org.firstinspires.ftc.teamcode.hardware.Controller;
 @Disabled
 public class Tank extends OpMode {
 
-    private DcMotor fLeft;
-    private DcMotor bLeft;
-    private DcMotor fRight;
-    private DcMotor bRight;
+    private DcMotor fLeft, bLeft, fRight, bRight;
     private Controller primary;
 
     @Override

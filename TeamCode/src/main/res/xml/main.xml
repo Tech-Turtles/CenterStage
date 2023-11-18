@@ -20,14 +20,14 @@
             <ContinuousRotationServo    name = "Back Right Angle"     port = "2" />
             <AnalogInput                name = "Back Right Encoder"   port = "2" />
 
-            <Servo                      name = "Arm Left"             port = "4"/>
-            <Servo                      name = "Arm Right"            port = "5"/>
+            <Servo                      name = "Arm Left"             port = "5"/>
+            <Servo                      name = "Arm Right"            port = "4"/>
         </LynxModule>
     </LynxUsbDevice>
     <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ3M0WDC" parentModuleAddress="2">
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5202SeriesMotor     name = "Intake"             port = "0"/>
-            <goBILDA5202SeriesMotor     name = "Intake"             port = "1"/>
+            <goBILDA5202SeriesMotor     name = "Lift"               port = "1"/>
             <goBILDA5202SeriesMotor     name = "Slide Right"        port = "2"/>
             <goBILDA5202SeriesMotor     name = "Slide Left"         port = "3"/>
             <Servo                      name = "Claw Right"         port = "1"/>
@@ -36,5 +36,5 @@
             <Servo                      name = "Ramp"               port = "5"/>
         </LynxModule>
     </LynxUsbDevice>
-    <Webcam name="Webcam 1" serialNumber="6F22D62F" />
+    <Webcam name="Webcam" serialNumber="6F22D62F" />
 </Robot>

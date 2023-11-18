@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
-import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.hardware.CRServoImplEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 import com.qualcomm.robotcore.hardware.PwmControl;
@@ -13,13 +12,9 @@ public class ContinuousServo extends HardwareDevice {
     private CRServoImplEx device;
     private Direction direction = Direction.FORWARD;
     private PwmControl.PwmRange pwmRange = null;
-    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 0.01);
+    private final PIDController controller = new PIDController(0.0, 0.0, 0.0, 0.013);
     private double feedforward;
-    private NanoClock clock;
     private AbsoluteEncoder encoder = null;
-    private double velocityEstimate;
-    private double lastPosition;
-    private double lastUpdateTime;
 
     public ContinuousServo(String configName) {
         super(configName, CRServoImplEx.class);
@@ -32,18 +27,13 @@ public class ContinuousServo extends HardwareDevice {
             return;
         }
 
-        this.controller.setTolerance(0.5);
-
         this.device = (CRServoImplEx) device;
         this.device.setDirection(direction);
 
         if(pwmRange != null)
             this.device.setPwmRange(pwmRange);
 
-        this.clock = NanoClock.system();
-
-        this.lastPosition = 0.0;
-        this.lastUpdateTime = clock.seconds();
+        controller.setTolerance(0.1);
 
         setStatus(HardwareStatus.SUCCESS);
     }
@@ -85,6 +75,11 @@ public class ContinuousServo extends HardwareDevice {
         return this;
     }
 
+    public ContinuousServo configureFF(double kS) {
+        this.feedforward = kS;
+        return this;
+    }
+
     public Direction getDirection() {
         return direction;
     }
@@ -119,10 +114,10 @@ public class ContinuousServo extends HardwareDevice {
 
         double pid = controller.calculate(position, setpoint);
 
-        if(controller.atSetpoint())
-            device.setPower(0.0);
-        else
-            device.setPower(pid + feedforward);
+//        if(controller.atSetpoint())
+//            device.setPower(0.0);
+//        else
+        device.setPower(pid + (Math.abs(setpoint - position) >= 1.0 ? feedforward : 0) * Math.signum(pid));
     }
 
     public double getVelocity() {

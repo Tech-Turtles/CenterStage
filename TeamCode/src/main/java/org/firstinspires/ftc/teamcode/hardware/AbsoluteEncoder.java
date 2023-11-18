@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.AnalogInput;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
 
-//ToDo Normalize getCurentPosition()'s angle due to subtracting the offset when returning
 public class AbsoluteEncoder extends HardwareDevice {
 
     public static final double DEFAULT_RANGE = 3.3;
@@ -59,12 +58,14 @@ public class AbsoluteEncoder extends HardwareDevice {
 
     public double getCurrentPosition() {
         if(getStatus().equals(HardwareStatus.MISSING)) return 0.0;
-
+        // degrees
         double pos = (inverted
                 ? (device.getVoltage() / analogRange)
                 : (1 - (device.getVoltage() / analogRange))) * 360.0;
-
-        return pos - offset;
+        double compPos = pos - offset;
+        // normalize angle after offset is applied; 0 <= offset <= 360
+        compPos += compPos < 0 ? 360.0 : (compPos > 360.0 ? -360.0 : 0.0);
+        return compPos;
     }
 
     public double getVelocity() {

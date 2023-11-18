@@ -11,7 +11,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Controller;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
-import org.firstinspires.ftc.teamcode.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
@@ -128,7 +127,6 @@ public class RobotHardware extends OpMode {
         super.init_loop();
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Report any devices registered as missing
         for(RobotConfiguration robotConfiguration : RobotConfiguration.values()) {
             HardwareDevice device = robotConfiguration.getAsHardwareDevice();
@@ -158,7 +156,6 @@ public class RobotHardware extends OpMode {
             packet = new TelemetryPacket();
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Reset period timer & clear previous periods so the average will maintain accuracy
         period.reset();
         period.clearPastPeriods();
@@ -176,7 +173,7 @@ public class RobotHardware extends OpMode {
 //        telemetry.addData("Period Average","%.4f sec", period.getAveragePeriodSec());
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
+//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Update controllers
         primary.update();
         secondary.update();
