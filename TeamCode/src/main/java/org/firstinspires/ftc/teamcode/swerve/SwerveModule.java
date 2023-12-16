@@ -135,7 +135,9 @@ public class SwerveModule {
         double     velocity;
         Rotation2d azimuth;
         double     omega;
-        velocity = driveMotor.getVelocity() / RobotConstants.DRIVE_TICKS_PER_METER;
+        // No drive encoders, so module velocity is retrieved through 3-wheel odometry
+//        velocity = driveMotor.getVelocity() / RobotConstants.DRIVE_TICKS_PER_METER;
+        velocity = 0.0;
         azimuth = Rotation2d.fromDegrees(angleServo.getPosition());
         omega = Math.toRadians(angleServo.getVelocity());
         return new SwerveModuleState2(velocity, azimuth, omega);

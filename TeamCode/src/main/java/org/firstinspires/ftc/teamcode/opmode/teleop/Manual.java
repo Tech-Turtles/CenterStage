@@ -35,7 +35,7 @@ public class Manual extends RobotHardware {
     private RobotConstants.ClawPosition left = RobotConstants.ClawPosition.OPEN, right = RobotConstants.ClawPosition.OPEN;
     private RobotConstants.ArmPosition armPosition = RobotConstants.ArmPosition.START;
 
-    public static double slideDownSpeed = 1.0, slideSpeed = 1.0, liftSpeed = 1.0;
+    public static double slideDownSpeed = 1.0, slideSpeed = 1.0, liftSpeed = 1.0, turnScale = 0.5;
 
     public Manual() {
         stateMachine = new Executive.StateMachine<>(this);

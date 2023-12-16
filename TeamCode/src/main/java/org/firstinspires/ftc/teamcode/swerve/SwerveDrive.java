@@ -358,7 +358,11 @@ public class SwerveDrive {
      * @return A ChassisSpeeds object of the current robot-relative velocity
      */
     public ChassisSpeeds getRobotVelocity() {
-        return kinematics.toChassisSpeeds(getStates());
+        com.acmerobotics.roadrunner.geometry.Pose2d velo = odometry.getPoseVelocity();
+        if(velo == null)
+            return new ChassisSpeeds();
+        return new ChassisSpeeds(velo.getX() * 0.0254, velo.getY() * 0.0254,
+                new Rotation2d(velo.headingVec().getX() * 0.0254, velo.headingVec().getY() * 0.0254).getRadians());
     }
 
     /**

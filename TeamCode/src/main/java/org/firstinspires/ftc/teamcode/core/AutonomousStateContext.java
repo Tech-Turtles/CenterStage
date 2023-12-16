@@ -74,8 +74,8 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         controller = new PPHolonomicDriveController(
                 new PIDConstants(3.0, 0.0, 0.0),
                 new PIDConstants(5.0, 0.0, 0.0),
-                0.013,
-                1.8,
+                0.017,
+                1.6,
                 0.2514
         );
 
@@ -83,7 +83,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         speedsSupplier = autonomous.swerveDrive::getRobotVelocity;
         output = autonomous.swerveDrive::drive;
 
-        loadPathPlannerTrajectories();
+//        loadPathPlannerTrajectories();
 
         stateMachine.changeState(StateType.DRIVE, new Start());
         stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.START));
@@ -156,7 +156,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 if(routine.equals(RobotConstants.AutonomousRoutine.PARK))
                     nextState(StateType.DRIVE, new Back_Park());
                 else {
-                    nextState(StateType.DRIVE, new Place());
+                    nextState(StateType.DRIVE, new Detect_Spike());
                 }
             }
         }
@@ -166,11 +166,48 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
+    private class Detect_Spike extends Executive.StateBase<Autonomous> {
+
+        Webcam webcam = RobotConfiguration.WEBCAM.getAsWebcam();
+
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
+            nextState(StateType.SLIDES, new Slide_Position(100));
+            nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.CLOSE, RobotConstants.ClawOrder.BOTH));
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            Rect rect = allianceColor.equals(AllianceColor.BLUE)
+                    ? webcam.getProcessor().getBlueRect()
+                    : webcam.getProcessor().getRedRect();
+
+            try {
+                double x = rect.x + rect.width / 2.0;
+                if (x < leftBound)
+                    spikePosition = SpikePosition.LEFT;
+                else if (x > rightBound)
+                    spikePosition = SpikePosition.RIGHT;
+                else
+                    spikePosition = SpikePosition.MIDDLE;
+            } catch (NullPointerException ignore) {
+            }
+
+            opMode.telemetry.addData("Spike", spikePosition.name());
+
+            if (stateTimer.seconds() > visionTime) {
+                webcam.stop();
+                nextState(StateType.DRIVE, new Place());
+            }
+        }
+    }
+
     private class Place extends Executive.StateBase<Autonomous> {
         private PathPlannerTrajectory generatedTrajectory;
-        private boolean hasRun = false;
-        private boolean hasDriven = false;
-        private boolean hasSetArm = false;
+        private boolean hasRun = false, hasDriven = false, hasSetArm = false, hasSetClaw = false;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -178,8 +215,14 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             ChassisSpeeds currentSpeeds = speedsSupplier.get();
             PathPlannerPath path;
             if(allianceColor.equals(AllianceColor.BLUE)) {
-                path = PathPlannerPath.fromPathFile("BluePlace");
-                opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(0.23, 2.13), Rotation2d.fromDegrees(180.0)));
+                if(spikePosition.equals(SpikePosition.LEFT))
+                    path = PathPlannerPath.fromPathFile("TopStartToPlaceLeft");
+                else if (spikePosition.equals(SpikePosition.RIGHT))
+                    path = PathPlannerPath.fromPathFile("TopStartToPlaceRight");
+                else
+                    path = PathPlannerPath.fromPathFile("TopStartToPlaceMiddle");
+                //ToDo replace with start position
+                opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(0.215, 2.127), Rotation2d.fromDegrees(180.0)));
             } else {
                 path = PathPlannerPath.fromPathFile("RedPlace");
                 opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(3.20, 2.14), Rotation2d.fromDegrees(0.0)));
@@ -188,11 +231,6 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
 
             controller.reset(poseSupplier.get(), currentSpeeds);
-
-            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0));
-            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
-            nextState(StateType.SLIDES, new Slide_Position(100));
-            nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.CLOSE, RobotConstants.ClawOrder.BOTH));
         }
 
         @Override
@@ -209,7 +247,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
                 output.accept(targetSpeeds);
 
-                if(!hasSetArm && stateTimer.seconds() > 0.8) {
+                if(!hasSetArm && stateTimer.seconds() > 0.6) {
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
                     hasSetArm = true;
                 }
@@ -220,10 +258,73 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                     output.accept(new ChassisSpeeds(0,0,0));
                 }
             } else {
-                if(stateTimer.seconds() > 1.0) {
-                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.BOTH));
-                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD, 0.1));
-                    nextState(StateType.DRIVE, new PlaceToPark());
+                if(!hasSetClaw && stateTimer.seconds() > 0.2)
+                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.LEFT));
+
+                if(stateTimer.seconds() > 2.0) {
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD, 0.3));
+                    nextState(StateType.DRIVE, new Spike());
+                }
+            }
+        }
+    }
+
+    private class Spike extends Executive.StateBase<Autonomous> {
+        private PathPlannerTrajectory generatedTrajectory;
+        private boolean hasRun = false, hasDriven = false, hasSetArm = false, hasSetClaw = false;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path;
+            if(allianceColor.equals(AllianceColor.BLUE)) {
+                if(spikePosition.equals(SpikePosition.LEFT))
+                    path = PathPlannerPath.fromPathFile("TopPlaceLeftToSpikeLeft");
+                else if (spikePosition.equals(SpikePosition.RIGHT))
+                    path = PathPlannerPath.fromPathFile("TopPlaceRightToSpikeRight");
+                else
+                    path = PathPlannerPath.fromPathFile("TopPlaceMiddleToSpikeMiddle");
+            } else {
+                path = PathPlannerPath.fromPathFile("RedPlace");
+            }
+
+            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!hasDriven) {
+                if (!hasRun) {
+                    stateTimer.reset();
+                    hasRun = true;
+                }
+                double currentTime = stateTimer.seconds();
+                PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
+                Pose2d currentPose = poseSupplier.get();
+                ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+                output.accept(targetSpeeds);
+
+                if (currentTime > generatedTrajectory.getTotalTimeSeconds()+3.0) {
+                    hasDriven = true;
+                    stateTimer.reset();
+                    output.accept(new ChassisSpeeds(0,0,0));
+                }
+            } else {
+                if(!hasSetArm && stateTimer.seconds() > 1.0) {
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.SPIKE));
+                    hasSetArm = true;
+                } else if(!hasSetClaw && stateTimer.seconds() > 1.5 && hasSetArm) {
+                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.RIGHT));
+                    hasSetClaw = true;
+                }
+
+                if(hasSetClaw && stateTimer.seconds() > 2.0) {
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
+//                    nextState(StateType.DRIVE, new Stop());
                 }
             }
         }
@@ -261,184 +362,6 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             }
         }
     }
-
-//    private class Detect_Spike extends Executive.StateBase<Autonomous> {
-//
-//        Webcam webcam = RobotConfiguration.WEBCAM.getAsWebcam();
-//
-//        @Override
-//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
-//            super.init(stateMachine);
-//            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0));
-//            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
-//            nextState(StateType.SLIDES, new Slide_Position(100));
-//            nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.CLOSE, RobotConstants.ClawOrder.BOTH));
-//        }
-//
-//        @Override
-//        public void update() {
-//            super.update();
-//            Rect rect = allianceColor.equals(AllianceColor.BLUE)
-//                    ? webcam.getProcessor().getBlueRect()
-//                    : webcam.getProcessor().getRedRect();
-//
-//            try {
-//                double x = rect.x + rect.width/2.0;
-//                if(x < leftBound)
-//                    spikePosition = SpikePosition.LEFT;
-//                else if(x > rightBound)
-//                    spikePosition = SpikePosition.RIGHT;
-//                else
-//                    spikePosition = SpikePosition.MIDDLE;
-//            } catch (NullPointerException ignore) {}
-//
-//            opMode.telemetry.addData("Spike", spikePosition.name());
-//
-//            if(stateTimer.seconds() > visionTime) {
-//                webcam.stop();
-//                nextState(StateType.DRIVE, new Spike());
-//            }
-//        }
-//    }
-//
-//    private class Spike extends Executive.StateBase<Autonomous> {
-//        private PathPlannerTrajectory generatedTrajectory;
-//        private boolean hasRun = false;
-//        private boolean hasDriven = false;
-//        @Override
-//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
-//            super.init(stateMachine);
-//
-//            ChassisSpeeds currentSpeeds = speedsSupplier.get();
-//            PathPlannerPath path = PathPlannerPath.fromPathFile("MiddleSpike");;
-////            if(spikePosition.equals(SpikePosition.RIGHT)) {
-////                path = PathPlannerPath.fromPathFile("RightSpike");
-////            } else if (spikePosition.equals(SpikePosition.LEFT)) {
-////                path = PathPlannerPath.fromPathFile("LeftSpike");
-////            } else {
-////                path = PathPlannerPath.fromPathFile("MiddleSpike");
-////            }
-//
-//            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
-//
-//            opMode.swerveDrive.resetOdometry(new Pose2d(new Translation2d(0.23, 2.13), Rotation2d.fromDegrees(180.0)));
-//
-//            controller.reset(poseSupplier.get(), currentSpeeds);
-//
-////            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, 0.0));
-//        }
-//
-//        @Override
-//        public void update() {
-//            super.update();
-//            if(!hasDriven) {
-//                if (!hasRun) {
-//                    stateTimer.reset();
-//                    hasRun = true;
-//                }
-//                double currentTime = stateTimer.seconds();
-//                PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
-//                output.accept(controller.calculateRobotRelativeSpeeds(poseSupplier.get(), targetState));
-//
-//                if (currentTime > generatedTrajectory.getTotalTimeSeconds()) {
-//                    hasDriven = true;
-//                    stateTimer.reset();
-////                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, -0.4, 0.0));
-//                }
-//            } else {
-//                if(stateTimer.seconds() > 1.0) {
-////                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
-//                    nextState(StateType.DRIVE, new Spike_To_Place());
-//                }
-//            }
-//        }
-//    }
-//
-//    private class Spike_To_Place extends Executive.StateBase<Autonomous> {
-//        private PathPlannerTrajectory generatedTrajectory;
-//        private boolean hasRun = false;
-//        private boolean hasDriven = false;
-//        @Override
-//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
-//            super.init(stateMachine);
-//
-//            ChassisSpeeds currentSpeeds = speedsSupplier.get();
-//            PathPlannerPath path = null;
-//            if(spikePosition.equals(SpikePosition.RIGHT)) {
-//                path = PathPlannerPath.fromPathFile("RightSpikePlace");
-//            } else if (spikePosition.equals(SpikePosition.LEFT)) {
-//                path = PathPlannerPath.fromPathFile("LeftSpikePlace");
-//            } else {
-//                path = PathPlannerPath.fromPathFile("MiddleSpikePlace");
-//            }
-//
-//            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
-//
-//            controller.reset(poseSupplier.get(), currentSpeeds);
-//            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
-//        }
-//
-//        @Override
-//        public void update() {
-//            super.update();
-//            if(!hasDriven) {
-//                if (!hasRun) {
-//                    stateTimer.reset();
-//                    hasRun = true;
-//                }
-//                double currentTime = stateTimer.seconds();
-//                PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
-//                Pose2d currentPose = poseSupplier.get();
-//                ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
-//                output.accept(targetSpeeds);
-//
-//                if (currentTime > generatedTrajectory.getTotalTimeSeconds()) {
-//                    hasDriven = true;
-//                    stateTimer.reset();
-//                }
-//            } else {
-//                if(stateTimer.seconds() > 1.0) {
-//                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.BOTH));
-//                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
-//                    nextState(StateType.DRIVE, new Place_To_Park());
-//                }
-//            }
-//        }
-//    }
-//
-//    private class Place_To_Park extends Executive.StateBase<Autonomous> {
-//        private PathPlannerTrajectory generatedTrajectory;
-//        private boolean hasRun = false;
-//        @Override
-//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
-//            super.init(stateMachine);
-//
-//            ChassisSpeeds currentSpeeds = speedsSupplier.get();
-//
-//            PathPlannerPath path = PathPlannerPath.fromPathFile("PlacePark");
-//            generatedTrajectory = new PathPlannerTrajectory(path, currentSpeeds);
-//
-//            opMode.swerveDrive.resetOdometry(generatedTrajectory.getInitialTargetHolonomicPose());
-//            controller.reset(poseSupplier.get(), currentSpeeds);
-//        }
-//
-//        @Override
-//        public void update() {
-//            super.update();
-//            if(!hasRun) {
-//                stateTimer.reset();
-//                hasRun = true;
-//            }
-//            double currentTime = stateTimer.seconds();
-//            PathPlannerTrajectory.State targetState = generatedTrajectory.sample(currentTime);
-//            Pose2d currentPose = poseSupplier.get();
-//            ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
-//            output.accept(targetSpeeds);
-//
-//            if (currentTime > generatedTrajectory.getTotalTimeSeconds())
-//                nextState(StateType.DRIVE, new Stop());
-//        }
-//    }
 
     private class Audience_Park extends Executive.StateBase<Autonomous> {
         private PathPlannerTrajectory generatedTrajectory;
@@ -516,14 +439,20 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
         private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
         private final Encoder slides = RobotConfiguration.LIFT_ENCODER.getAsEncoder();
-        private final double setpoint;
+        private final double setpoint, delay;
+        private boolean generate = false;
         private MotionProfile activeProfile;
         private double profileStart;
         private final PIDFController controller = RobotConstants.slideController;
 
 
         Slide_Position(double setpoint) {
+            this(setpoint, 0.0);
+        }
+
+        Slide_Position(double setpoint, double delay) {
             this.setpoint = setpoint;
+            this.delay = delay;
         }
 
         @Override
@@ -533,12 +462,22 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             MotionState start = new MotionState(slides.getCurrentPosition(), 0, 0, 0);
             MotionState goal = new MotionState(setpoint, 0, 0, 0);
             activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1000, 600);
+            generate = delay > 0.0;
         }
 
         @Override
         public void update() {
             super.update();
-
+            if(delay > 0.0 && !generate) {
+                if(stateTimer.seconds() > delay) {
+                    profileStart = stateTimer.seconds();
+                    MotionState start = new MotionState(slides.getCurrentPosition(), 0, 0, 0);
+                    MotionState goal = new MotionState(setpoint, 0, 0, 0);
+                    activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1000, 600);
+                    generate = true;
+                }
+                return;
+            }
             double profileTime = stateTimer.seconds() - profileStart;
 
             MotionState motionState = activeProfile.get(profileTime);

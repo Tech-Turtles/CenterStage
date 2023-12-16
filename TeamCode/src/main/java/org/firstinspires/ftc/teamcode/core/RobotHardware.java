@@ -71,7 +71,7 @@ public class RobotHardware extends OpMode {
         }
         // Clear hub caches
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
+//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
 
         // Initialize swerve configurations and the swerve drive object.
         SwerveModuleConfiguration front_left = new SwerveModuleConfiguration(
@@ -168,6 +168,7 @@ public class RobotHardware extends OpMode {
             dashboard.sendTelemetryPacket(packet);
             packet.clearLines();
             packet.put("Period Average", period.getAveragePeriodSec());
+            packet.put("Robot Velocity", swerveDrive.getRobotVelocity());
         }
         // Output average period (loop time)
 //        telemetry.addData("Period Average","%.4f sec", period.getAveragePeriodSec());
@@ -190,7 +191,7 @@ public class RobotHardware extends OpMode {
         dashboard = null;
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
+//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Run stop function for certain devices that could continue moving
         for(RobotConfiguration robotConfiguration : RobotConfiguration.values()) {
             HardwareDevice device = robotConfiguration.getAsHardwareDevice();

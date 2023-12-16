@@ -60,22 +60,22 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_FRONT_LEFT(
             new AbsoluteEncoder("Front Left Encoder")
-            .zero(79.3-5.0-0.9)
+            .zero(271.5)
             .setInverted(false)
     ),
     ABSOLUTE_FRONT_RIGHT(
             new AbsoluteEncoder("Front Right Encoder")
-            .zero(311.0-2.5-1.7)
+            .zero(32.8)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_LEFT(
             new AbsoluteEncoder("Back Left Encoder")
-            .zero(138.7-18.9-0.6-2.5)
+            .zero(240.9)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_RIGHT(
             new AbsoluteEncoder("Back Right Encoder")
-            .zero(158.0-2.7-1.5)
+            .zero(226.3)
             .setInverted(false)
     ),
     ANGLE_FRONT_LEFT(
@@ -83,7 +83,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.008, 0.0, 0.0)
+            .configurePIDF(0.006, 0.0, 0.0)
             .configureFF(0.03)
             .configureEncoder(ABSOLUTE_FRONT_LEFT.getAsAbsoluteEncoder())
     ),
@@ -92,7 +92,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.008, 0.0, 0.0)
+            .configurePIDF(0.006, 0.0, 0.0)
             .configureFF(0.03)
             .configureEncoder(ABSOLUTE_FRONT_RIGHT.getAsAbsoluteEncoder())
     ),
@@ -101,7 +101,7 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.008, 0.0, 0.0)
+            .configurePIDF(0.006, 0.0, 0.0)
             .configureFF(0.03)
             .configureEncoder(ABSOLUTE_BACK_LEFT.getAsAbsoluteEncoder())
     ),
@@ -110,13 +110,13 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configurePIDWrapping()
             .configurePWMRange(AXON_CONTINUOUS_PWM)
-            .configurePIDF(0.008, 0.0, 0.0)
+            .configurePIDF(0.006, 0.0, 0.0)
             .configureFF(0.03)
             .configureEncoder(ABSOLUTE_BACK_RIGHT.getAsAbsoluteEncoder())
     ),
     LIFT_ENCODER(
             new Encoder("Back Right Drive")
-            .setDirection(Encoder.Direction.REVERSE)
+            .setDirection(Encoder.Direction.FORWARD)
     ),
     ODOMETRY_PARALLEL_LEFT(
             new Encoder("Front Left Drive")
@@ -146,7 +146,7 @@ public enum RobotConfiguration {
             new Motor("Slide Left")
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.REVERSE)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     ),
@@ -154,7 +154,7 @@ public enum RobotConfiguration {
             new Motor("Slide Right")
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     ),

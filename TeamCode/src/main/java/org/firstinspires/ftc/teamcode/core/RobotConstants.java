@@ -89,12 +89,13 @@ public final class RobotConstants {
     }
 
     public enum ArmPosition {
-        START(0.1, 0.1),
-        GRAB(0.1, 0.1),
-        DOWN(0.05, 0.05),
-        HOLD(0.4, 0.4),
-        BACK_BOARD(0.96, 0.96),
-        SPIKE(0.9, 0.9);
+        START(0.78, 0.75),
+        GRAB(0.78, 0.75),
+        BETWEEN(0.795, 0.765),
+        DOWN(0.81, 0.78),
+        HOLD(0.6, 0.63),
+        BACK_BOARD(0.33, 0.3),
+        SPIKE(0.25, 0.22);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
