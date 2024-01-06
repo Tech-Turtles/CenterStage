@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
 
 public class Servo extends HardwareDevice {
     private ServoImplEx device;
-    private double min = 0.0, max = 1.0;
+    private double min = 0.0, max = 1.0,;
     private Direction direction = Direction.FORWARD;
     private PwmControl.PwmRange pwmRange = null;
     public Servo(String configName) {

@@ -12,7 +12,6 @@ import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
 
 @Config
-@Disabled
 @Autonomous(name = "Intake Test", group = "E")
 public class IntakeTest extends RobotHardware {
     private final Servo ramp = RobotConfiguration.RAMP.getAsServo();

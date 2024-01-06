@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.core;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.SWERVE_MODULE_PHYSICAL_CHARACTERISTICS;
 
 import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.canvas.Canvas;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
@@ -22,6 +23,7 @@ import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModuleConfigura
 import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.utility.misc.DashboardUtil;
 
 /**
  * Main robot class which is responsible for:
@@ -139,7 +141,7 @@ public class RobotHardware extends OpMode {
         // Check if the packet should be sent
         if(packet != null) {
             dashboard.sendTelemetryPacket(packet);
-            packet.clearLines();
+            packet = new TelemetryPacket();
         }
         // Update controller inputs
         primary.update();
@@ -166,7 +168,8 @@ public class RobotHardware extends OpMode {
         // Check if the packet should be sent
         if(packet != null) {
             dashboard.sendTelemetryPacket(packet);
-            packet.clearLines();
+            packet = new TelemetryPacket();
+            drawRobot();
             packet.put("Period Average", period.getAveragePeriodSec());
             packet.put("Robot Velocity", swerveDrive.getRobotVelocity());
         }
@@ -204,6 +207,17 @@ public class RobotHardware extends OpMode {
             else if(device instanceof Webcam)
                 ((Webcam) device).stop();
         }
+    }
+
+    private void drawRobot() {
+        com.acmerobotics.roadrunner.geometry.Pose2d currentPose = swerveDrive.getPoseEstimate();
+        Canvas fieldOverlay = packet.fieldOverlay();
+
+        packet.put("x", currentPose.getX());
+        packet.put("y", currentPose.getY());
+        packet.put("heading", Math.toDegrees(currentPose.getHeading()));
+        fieldOverlay.setStroke("#3F51B5");
+        DashboardUtil.drawRobot(fieldOverlay, currentPose);
     }
 
     /**

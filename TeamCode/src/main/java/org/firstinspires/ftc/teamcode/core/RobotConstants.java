@@ -25,6 +25,7 @@ public final class RobotConstants {
     public static PIDFController slideController = new PIDFController(new PIDCoefficients(0.03, 0.0, 0.0), 0, 0, 0.17);
 
     public static final int DRIVE_TICKS_PER_METER = 1230;
+    public static final double MOTOR_CACHE_TOLERANCE = 0.02;
 
     //ToDo Incorporate proper maximum speed limiting on swerve
 
@@ -46,14 +47,14 @@ public final class RobotConstants {
     }
 
     // Mechanism Constants
-    public static double WRIST_CENTER = 0.41;
+    public static double WRIST_CENTER = 0.52;
     public static double INTAKE_SPEED = 1.0;
     public static double OUTTAKE_SPEED = -0.7;
     public enum IntakePosition {
-        START(0.0),
+        START(0.09),
         DRIVE(0.2),
-        INTAKE(0.63),
-        STACK(0.55);
+        INTAKE(1.0),
+        STACK(0.85);
         private final double position;
         IntakePosition(double position) {
             this.position = position;
@@ -65,8 +66,9 @@ public final class RobotConstants {
     }
 
     public enum ClawPosition {
-        OPEN(0.7, 0.7),
-        CLOSE(0.21, 0.23);
+        OPEN(0.1, .88),
+        MIDDLE(0.32, .77),
+        GRAB(.51, .47);
         private final double leftPos, rightPos;
         ClawPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -89,13 +91,13 @@ public final class RobotConstants {
     }
 
     public enum ArmPosition {
-        START(0.78, 0.75),
-        GRAB(0.78, 0.75),
-        BETWEEN(0.795, 0.765),
-        DOWN(0.81, 0.78),
-        HOLD(0.6, 0.63),
-        BACK_BOARD(0.33, 0.3),
-        SPIKE(0.25, 0.22);
+        START(0.9, 0.9),
+        GRAB(0.94, 0.94),
+        BETWEEN(0.9, 0.9),
+        DOWN(0.9, 0.9),
+        HOLD(0.8, 0.8),
+        BACK_BOARD(0.52, 0.52),
+        SPIKE(0.62, 0.62);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -108,6 +110,21 @@ public final class RobotConstants {
 
         public double getRightPos() {
             return rightPos;
+        }
+    }
+
+    public enum WristPosition {
+        START(0.52),
+        VERTICAL(0.52),
+        LEFT_HORIZONTAL(0.78),
+        RIGHT_HORIZONTAL(0.25);
+        private final double position;
+        WristPosition(double position) {
+            this.position = position;
+        }
+
+        public double getPosition() {
+            return position;
         }
     }
     public static final double DEADZONE = 0.2;

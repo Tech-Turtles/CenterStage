@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple.Direction;
 
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
 import org.firstinspires.ftc.teamcode.swerve.configuration.PIDFConfig;
@@ -36,6 +37,7 @@ public class Motor extends HardwareDevice {
             setStatus(HardwareStatus.MISSING);
             return;
         }
+        lastPower = 2;
         this.device = (DcMotorEx) device;
         this.device.setZeroPowerBehavior(zeroPowerBehavior);
         this.device.setDirection(direction);
@@ -107,11 +109,11 @@ public class Motor extends HardwareDevice {
 
     public double getPower() {
         if (getStatus().equals(HardwareStatus.MISSING)) return 0;
-        return device.getPower();
+        return lastPower;
     }
 
     public void setPower(double power) {
-        if(getStatus().equals(HardwareStatus.MISSING) || power == lastPower) return;
+        if(getStatus().equals(HardwareStatus.MISSING) || Math.abs(power - lastPower) < RobotConstants.MOTOR_CACHE_TOLERANCE) return;
         lastPower = power;
         device.setPower(power);
     }

@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 
 import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.hardware.IMU;
+import org.firstinspires.ftc.teamcode.opmode.teleop.Manual;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveControllerConfiguration;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveDriveConfiguration;
 import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
@@ -24,6 +25,7 @@ import org.firstinspires.ftc.teamcode.utility.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.utility.math.numbers.N3;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,6 +84,8 @@ public class SwerveDrive {
     public static double              lastHeadingRadians           = 0;
     private static final ElapsedTimer timer = new ElapsedTimer();
     public static boolean updatedHeading = false;
+    public static int POSE_HISTORY_LIMIT = 100;
+    private LinkedList<Pose2d> poseHistory = new LinkedList<>();
 
     /**
      * Creates a new swerve drive-base subsystem. Robot is controlled via the {@link SwerveDrive#drive} method, or via the
@@ -198,6 +202,13 @@ public class SwerveDrive {
 
         // Calculate required module states via kinematics
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), isOpenLoop);
+        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
+        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
+                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
+
+        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
+            poseHistory.removeFirst();
+        }
     }
 
     public void drive(ChassisSpeeds velocity) {
@@ -217,6 +228,13 @@ public class SwerveDrive {
 
         // Calculate required module states via kinematics
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), true);
+        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
+        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
+                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
+
+        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
+            poseHistory.removeFirst();
+        }
     }
 
     /**
@@ -336,6 +354,10 @@ public class SwerveDrive {
         com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
         return new Pose2d(poseEstimate.getX() * 0.0254, poseEstimate.getY() * 0.0254,
                 new Rotation2d(poseEstimate.headingVec().getX() * 0.0254, poseEstimate.headingVec().getY() * 0.0254));
+    }
+
+    public com.acmerobotics.roadrunner.geometry.Pose2d getPoseEstimate() {
+        return odometry.getPoseEstimate();
     }
 
     /**
@@ -681,5 +703,9 @@ public class SwerveDrive {
      */
     public void disableSecondOrderKinematics() {
         enableSecondOrderKinematics(0);
+    }
+
+    public List<Pose2d> getPoseHistory() {
+        return poseHistory;
     }
 }

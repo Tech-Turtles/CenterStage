@@ -79,7 +79,6 @@ public class TimingMonitor {
                 //checkpointIndex <= 0
                 checkpointIndex = 0;
                 checkpointNames.add("START");
-                currentTime = timer.seconds(); // Read and trash time for consistency.
                 timer.reset();
                 checkpointMaxTimes.add(0.0); // Initialize blank on first loop.
 
@@ -95,10 +94,10 @@ public class TimingMonitor {
             currentTime = timer.seconds();
             timer.reset();
             previousTime = checkpointMaxTimes.get(checkpointIndex);
-            if(currentTime > previousTime) {
+//            if(currentTime > previousTime) {
                 // Store new time if it is longer.
                 checkpointMaxTimes.set(checkpointIndex,currentTime);
-            }
+//            }
         }
         // Increment the checkpoint index
         checkpointIndex++;
@@ -118,10 +117,10 @@ public class TimingMonitor {
                 currentTime = timer.seconds();
                 timer.reset();
                 previousTime = checkpointMaxTimes.get(checkpointIndex);
-                if (currentTime > previousTime) {
+//                if (currentTime > previousTime) {
                     // Store new time if it is longer.
                     checkpointMaxTimes.set(checkpointIndex, currentTime);
-                }
+//                }
 
                 //Error check the name index
                 if (!checkpointName.equals(checkpointNames.get(checkpointIndex))) {
@@ -134,7 +133,6 @@ public class TimingMonitor {
                 */
                 checkpointNames.add(checkpointName);
                 // Add checkpoint time to the list.
-                currentTime = timer.seconds(); // Read and trash time for consistency.
                 timer.reset();
                 checkpointMaxTimes.add(0.0); // Initialize blank
             }
@@ -153,7 +151,7 @@ public class TimingMonitor {
             return; // Exit function in not enabled.
         }
 
-        builder.append("TimingMonitor Max Time Results");
+        builder.append("TimingMonitor Max Time Results").append("\n");
         if(checkpointOrderError) {
             builder.append("ERROR: Checkpoint order inconsistent.");
             builder.append("ERROR: Make sure loopStart() runs before checkpoint(), and that no calls are conditional.");
@@ -161,7 +159,7 @@ public class TimingMonitor {
         if(firstLoopCompleted) {
             int index = 0;
             for (String checkpoint : checkpointNames) {
-                builder.append(checkpoint).append(": ").append(String.format("%.3f", checkpointMaxTimes.get(index)));
+                builder.append(checkpoint).append(": ").append(String.format("%.3f", checkpointMaxTimes.get(index))).append("\n");
                 index++;
             }
         }

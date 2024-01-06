@@ -7,6 +7,8 @@ import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.AbsoluteEncoder;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
+import org.firstinspires.ftc.teamcode.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 
@@ -14,7 +16,7 @@ import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 @TeleOp(name = "Swerve Tuning", group = "E")
 public class SwerveTuning extends RobotHardware {
     public static double
-        fLOffset = 79.3-5.0, fROffset = 311.0-2.5, bLOffset = 138.7-18.9-0.6, bROffset = 158.0-2.7;
+        fLOffset = 0.0, fROffset = 311.0-2.5, bLOffset = 138.7-18.9-0.6, bROffset = 158.0-2.7;
 
     public static TuneState state = TuneState.DRIVE;
     public static WheelPosition angleWheel = WheelPosition.FRONT_LEFT;
@@ -72,6 +74,13 @@ public class SwerveTuning extends RobotHardware {
                 frontRight.zero(fROffset);
                 backLeft.zero(bLOffset);
                 backRight.zero(bROffset);
+
+                for(RobotConfiguration configuration : RobotConfiguration.values()) {
+                    HardwareDevice device = configuration.getAsHardwareDevice();
+                    if(device instanceof AbsoluteEncoder)
+                        telemetry.addData(configuration.name() + " Abs", ((AbsoluteEncoder) device).getCurrentPosition());
+
+                }
             case DRIVE:
                 double xVelocity;
                 double yVelocity;

@@ -4,6 +4,7 @@ import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.hardware.AbsoluteEncoder;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
+import org.firstinspires.ftc.teamcode.opmode.teleop.Manual;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModuleConfiguration;
 import org.firstinspires.ftc.teamcode.utility.math.controller.SimpleMotorFeedforward;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
@@ -87,7 +88,7 @@ public class SwerveModule {
         desiredState = SwerveModuleState2.optimize(desiredState,
                 Rotation2d.fromDegrees(getAbsolutePosition()),
                 lastState,
-                0.0);
+                0.03);
 
         if (isOpenLoop) {
             double percentOutput = desiredState.speedMetersPerSecond / configuration.maxSpeed;
@@ -104,7 +105,6 @@ public class SwerveModule {
             // Prevents module rotation if speed is less than 1%
             SwerveMath.antiJitter(desiredState, lastState, Math.min(configuration.maxSpeed, 4));
         }
-
         // Prevent module rotation if angle is the same as the previous angle.
         if (desiredState.angle != lastState.angle) {
 //            double moduleFF = desiredState.omegaRadPerSecond * configuration.moduleSteerFFCL;

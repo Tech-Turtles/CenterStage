@@ -5,6 +5,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
+import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerTrajectory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -175,6 +176,7 @@ public class Executive {
 
         private boolean initialized = false;
         private boolean deleteRequested = false;
+        protected PathPlannerTrajectory trajectory = null;
 
         public void init(StateMachine<T_opmode> stateMachine) {
             this.stateMachine = stateMachine;
@@ -187,6 +189,14 @@ public class Executive {
             timer.reset();
             stateTimer.reset();
             statePeriod.reset();
+        }
+
+        public double getTime() {
+            return stateTimer.seconds();
+        }
+
+        public PathPlannerTrajectory getTrajectory() {
+            return trajectory;
         }
 
         public void update() {

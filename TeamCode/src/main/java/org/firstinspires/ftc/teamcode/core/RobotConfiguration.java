@@ -60,7 +60,7 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_FRONT_LEFT(
             new AbsoluteEncoder("Front Left Encoder")
-            .zero(271.5)
+            .zero(290.4 + 15.9)
             .setInverted(false)
     ),
     ABSOLUTE_FRONT_RIGHT(
@@ -146,7 +146,7 @@ public enum RobotConfiguration {
             new Motor("Slide Left")
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     ),
@@ -154,7 +154,7 @@ public enum RobotConfiguration {
             new Motor("Slide Right")
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .setPIDTolerance(2.0)
-            .configureDirection(DcMotorSimple.Direction.REVERSE)
+            .configureDirection(DcMotorSimple.Direction.FORWARD)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     ),
@@ -193,7 +193,7 @@ public enum RobotConfiguration {
             new Motor("Lift")
             .configureZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE)
             .setPIDTolerance(5.0)
-            .configureDirection(DcMotorSimple.Direction.FORWARD)
+            .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
     ),

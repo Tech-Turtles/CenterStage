@@ -31,10 +31,7 @@ public class Diagnostic extends Manual {
         super.loop();
 
         telemetry.addData("Drive Pose", poseSupplier.get());
-//        telemetry.addData(RobotConfiguration.DRIVE_FRONT_LEFT.name(), RobotConfiguration.DRIVE_FRONT_LEFT.getAsMotor().getEncoderValue());
-//        telemetry.addData(RobotConfiguration.DRIVE_FRONT_RIGHT.name(), RobotConfiguration.DRIVE_FRONT_RIGHT.getAsMotor().getEncoderValue());
-//        telemetry.addData(RobotConfiguration.DRIVE_BACK_LEFT.name(), RobotConfiguration.DRIVE_BACK_LEFT.getAsMotor().getEncoderValue());
-//        telemetry.addData(RobotConfiguration.DRIVE_BACK_RIGHT.name(), RobotConfiguration.DRIVE_BACK_RIGHT.getAsMotor().getEncoderValue());
+
         for(RobotConfiguration configuration : RobotConfiguration.values()) {
             HardwareDevice device = configuration.getAsHardwareDevice();
             if(device instanceof Encoder)

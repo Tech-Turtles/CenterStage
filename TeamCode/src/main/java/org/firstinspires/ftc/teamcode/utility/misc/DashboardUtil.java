@@ -5,6 +5,8 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.path.Path;
 
+import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerTrajectory;
+
 import java.util.List;
 
 /**
@@ -12,35 +14,35 @@ import java.util.List;
  */
 public class DashboardUtil {
     private static final double DEFAULT_RESOLUTION = 2.0; // distance units; presumed inches
-    private static final double ROBOT_RADIUS = 9; // in
+    private static final double ROBOT_RADIUS = 8.5; // in
 
 
-    public static void drawPoseHistory(Canvas canvas, List<Pose2d> poseHistory) {
+    public static void drawPoseHistory(Canvas canvas, List<org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d> poseHistory) {
         double[] xPoints = new double[poseHistory.size()];
         double[] yPoints = new double[poseHistory.size()];
         for (int i = 0; i < poseHistory.size(); i++) {
-            Pose2d pose = poseHistory.get(i);
+            org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d pose = poseHistory.get(i);
             xPoints[i] = pose.getX();
             yPoints[i] = pose.getY();
         }
         canvas.strokePolyline(xPoints, yPoints);
     }
 
-    public static void drawSampledPath(Canvas canvas, Path path, double resolution) {
-        int samples = (int) Math.ceil(path.length() / resolution);
+    public static void drawSampledPath(Canvas canvas, PathPlannerTrajectory path, double resolution) {
+        int samples = (int) Math.ceil(path.getTotalTimeSeconds() / resolution);
         double[] xPoints = new double[samples];
         double[] yPoints = new double[samples];
-        double dx = path.length() / (samples - 1);
+        double dx = path.getTotalTimeSeconds() / (samples - 1);
         for (int i = 0; i < samples; i++) {
             double displacement = i * dx;
-            Pose2d pose = path.get(displacement);
+            org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d pose = path.sample(displacement).getTargetHolonomicPose();
             xPoints[i] = pose.getX();
             yPoints[i] = pose.getY();
         }
         canvas.strokePolyline(xPoints, yPoints);
     }
 
-    public static void drawSampledPath(Canvas canvas, Path path) {
+    public static void drawSampledPath(Canvas canvas, PathPlannerTrajectory path) {
         drawSampledPath(canvas, path, DEFAULT_RESOLUTION);
     }
 
