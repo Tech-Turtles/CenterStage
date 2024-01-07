@@ -42,7 +42,7 @@ public class SpikeDetectionProcessor implements VisionProcessor {
     private Rect redRect = new Rect(), blueRect = new Rect();
 
     private double min = 100,max = 1000000;
-    private double horizon = 300;
+    private double horizon = 160;
     private Mode mode = Mode.BOTH;
 
     public enum Mode {

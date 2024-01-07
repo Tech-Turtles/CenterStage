@@ -10,9 +10,11 @@ import com.acmerobotics.roadrunner.util.NanoClock;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
+import org.firstinspires.ftc.teamcode.hardware.Servo;
 
 @TeleOp
 @Config
@@ -31,6 +33,7 @@ public class SlidePIDTest extends RobotHardware {
 
     private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(),
             right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+    private final Servo armLeft = RobotConfiguration.ARM_LEFT.getAsServo(), armRight = RobotConfiguration.ARM_RIGHT.getAsServo();
     private final Encoder lift = RobotConfiguration.LIFT_ENCODER.getAsEncoder();
 
     @Override
@@ -41,6 +44,8 @@ public class SlidePIDTest extends RobotHardware {
 //        controller = new PIDFController(coeffs);
         controller.setTargetVelocity(targetVelo);
         controller.setTargetAcceleration(targetAccel);
+        armLeft.setPosition(RobotConstants.ArmPosition.HOLD.getLeftPos());
+        armRight.setPosition(RobotConstants.ArmPosition.HOLD.getRightPos());
     }
 
     @Override
@@ -52,6 +57,8 @@ public class SlidePIDTest extends RobotHardware {
         MotionState goal = new MotionState(setpoint, 0, 0, 0);
         activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, targetVelo, targetAccel);
         profileStart = clock.seconds();
+        armLeft.setPosition(RobotConstants.ArmPosition.HOLD.getLeftPos());
+        armRight.setPosition(RobotConstants.ArmPosition.HOLD.getRightPos());
     }
 
     @Override
@@ -98,8 +105,8 @@ public class SlidePIDTest extends RobotHardware {
     }
 
     private static MotionProfile generateProfile(boolean movingForward) {
-        MotionState start = new MotionState(movingForward ? 200 : setpoint, 0, 0, 0);
-        MotionState goal = new MotionState(movingForward ? setpoint : 200, 0, 0, 0);
+        MotionState start = new MotionState(movingForward ? 100 : setpoint, 0, 0, 0);
+        MotionState goal = new MotionState(movingForward ? setpoint : 100, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, targetVelo, targetAccel);
     }
 }

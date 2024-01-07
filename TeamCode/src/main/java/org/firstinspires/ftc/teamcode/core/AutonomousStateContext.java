@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.CLAW_LEFT;
 import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.CLAW_RIGHT;
 import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.INTAKE;
 import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.RAMP;
+import static org.firstinspires.ftc.teamcode.core.RobotConfiguration.WRIST;
 import static org.firstinspires.ftc.teamcode.utility.autonomous.Executive.StateMachine.StateType;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -75,7 +76,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 new PIDConstants(5.0, 0.0, 0.0),
                 0.017,
                 1.6,
-                0.2514
+                0.2507
         );
 
         poseSupplier = autonomous.swerveDrive::getPose;
@@ -167,13 +168,13 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         public void update() {
             super.update();
             if(startPosition.equals(StartPosition.AUDIENCE)) {
-                nextState(StateType.DRIVE, new Audience_Park());
+                nextState(StateType.DRIVE, new Detect_Spike());
             } else {
                 if(routine.equals(RobotConstants.AutonomousRoutine.PARK))
                     nextState(StateType.DRIVE, new Back_Park());
                 else {
-                    spikePosition = SpikePosition.MIDDLE;
-                    nextState(StateType.DRIVE, new CompSpike());
+//                    spikePosition = SpikePosition.MIDDLE;
+                    nextState(StateType.DRIVE, new Detect_Spike());
                 }
             }
         }
@@ -193,6 +194,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
             nextState(StateType.SLIDES, new Slide_Position(20));
             nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.GRAB, RobotConstants.ClawOrder.BOTH));
+            nextState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.VERTICAL));
         }
 
         @Override
@@ -223,7 +225,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
     }
 
     private class CompSpike extends Executive.StateBase<Autonomous> {
-        private boolean hasRun = false, hasDriven = false, hasSetArm = false, hasSetClaw = false;
+        private boolean hasRun = false, hasDriven = false, hasSetArm = false, hasSetClaw = false, bool = false;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -270,7 +272,13 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
                 if(!hasSetArm && stateTimer.seconds() > 0.2) {
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+                    nextState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.RIGHT_HORIZONTAL));
                     hasSetArm = true;
+                }
+
+                if(!bool && stateTimer.seconds() > 0.6) {
+                    bool = true;
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.SPIKE));
                 }
 
                 if (currentTime > trajectory.getTotalTimeSeconds()+ 0.25) {
@@ -288,10 +296,11 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                     hasSetClaw = true;
                 }
 
-                if(hasSetClaw && stateTimer.seconds() > 0.7) {
+                if(hasSetClaw && stateTimer.seconds() > 2.0) {
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.HOLD));
-                    nextState(StateType.SLIDES, new Slide_Position(200));
-                    nextState(StateType.DRIVE, new CompPlace());
+                    nextState(StateType.SLIDES, new Slide_Position(100));
+//                    nextState(StateType.DRIVE, new CompPlace());
+                    nextState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.VERTICAL));
                 }
             }
         }
@@ -780,6 +789,37 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
             armLeft.setPosition(leftPos);
             armRight.setPosition(rightPos);
+        }
+    }
+
+    private static class Wrist_Position extends Executive.StateBase<Autonomous> {
+        private final double pos, delay;
+        private final Servo wrist = RobotConfiguration.WRIST.getAsServo();
+
+        Wrist_Position(RobotConstants.WristPosition wristPosition) {
+            this(wristPosition.getPosition(), 0.0);
+        }
+
+        Wrist_Position(RobotConstants.WristPosition wristPosition, double delay) {
+            this(wristPosition.getPosition(), delay);
+        }
+
+        Wrist_Position(double pos) {
+            this(pos, 0.0);
+        }
+
+        Wrist_Position(double pos, double delay) {
+            this.pos = pos;
+            this.delay = delay;
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
+            if(stateTimer.seconds() < delay)
+                return;
+            wrist.setPosition(pos);
         }
     }
 

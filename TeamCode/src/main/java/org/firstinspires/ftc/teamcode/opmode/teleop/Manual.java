@@ -129,7 +129,7 @@ public class Manual extends RobotHardware {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED * primary.left_trigger);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
             } else if (primary.dpadUp()) {
-                RobotConfiguration.INTAKE.getAsMotor().setPower(OUTTAKE_SPEED);
+                RobotConfiguration.INTAKE.getAsMotor().setPower(INTAKE_SPEED);
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             } else if (primary.dpadDown()) {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
@@ -164,7 +164,7 @@ public class Manual extends RobotHardware {
             } else if (-secondary.right_stick_y < -DEADZONE)
                 armPosition = RobotConstants.ArmPosition.BACK_BOARD;
             else if (secondary.rightStickButtonOnce())
-                armPosition = RobotConstants.ArmPosition.HOLD;
+                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
             else if (secondary.XOnce()) {
                 armPosition = RobotConstants.ArmPosition.DOWN;
                 wristPosition = RobotConstants.WristPosition.VERTICAL;

@@ -36,5 +36,5 @@
             <Servo                      name = "Ramp"               port = "5"/>
         </LynxModule>
     </LynxUsbDevice>
-    <Webcam name="Webcam" serialNumber="6F22D62F" />
+    <Webcam name="Webcam" serialNumber="3177716F" />
 </Robot>

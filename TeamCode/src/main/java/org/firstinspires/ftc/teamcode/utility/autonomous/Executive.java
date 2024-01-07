@@ -44,6 +44,7 @@ public class Executive {
             INTAKE,
             SLIDES,
             ARM,
+            WRIST,
             CLAW,
             CLIMB
         }

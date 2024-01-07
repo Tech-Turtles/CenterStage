@@ -116,15 +116,15 @@ public enum RobotConfiguration {
     ),
     LIFT_ENCODER(
             new Encoder("Back Right Drive")
-            .setDirection(Encoder.Direction.FORWARD)
+            .setDirection(Encoder.Direction.REVERSE)
     ),
     ODOMETRY_PARALLEL_LEFT(
-            new Encoder("Front Left Drive")
-            .setDirection(Encoder.Direction.FORWARD)
-    ),
-    ODOMETRY_PARALLEL_RIGHT(
             new Encoder("Front Right Drive")
             .setDirection(Encoder.Direction.REVERSE)
+    ),
+    ODOMETRY_PARALLEL_RIGHT(
+            new Encoder("Front Left Drive")
+            .setDirection(Encoder.Direction.FORWARD)
     ),
     ODOMETRY_PERPENDICULAR(
             new Encoder("Back Left Drive")
