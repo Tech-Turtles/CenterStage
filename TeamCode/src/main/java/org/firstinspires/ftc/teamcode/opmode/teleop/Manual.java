@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.core.RobotConstants.INTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.IntakePosition;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.OUTTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.WRIST_CENTER;
+import static org.firstinspires.ftc.teamcode.opmode.autonomous.SlidePIDTest.kG;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.roadrunner.control.PIDFController;
@@ -178,6 +179,10 @@ public class Manual extends RobotHardware {
                 wristPosition = RobotConstants.WristPosition.LEFT_HORIZONTAL;
             }
 
+            if(secondary.dpadDownOnce()) {
+                stateMachine.changeState(Executive.StateMachine.StateType.ARM, new AutoTransfer());
+            }
+
             double liftPower = secondary.Y() ? liftSpeed : (secondary.B() ? -liftSpeed : 0.0);
             RobotConfiguration.LIFT.getAsMotor().setPower(liftPower);
 
@@ -210,7 +215,7 @@ public class Manual extends RobotHardware {
             profileStart = stateTimer.seconds();
             MotionState start = new MotionState(slides.getCurrentPosition(), 0, 0, 0);
             MotionState goal = new MotionState(setpoint, 0, 0, 0);
-            activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1800, 1200);
+            activeProfile = MotionProfileGenerator.generateSimpleMotionProfile(start, goal, 1400, 900);
         }
 
         @Override
@@ -232,6 +237,7 @@ public class Manual extends RobotHardware {
             controller.setTargetVelocity(motionState.getV());
             controller.setTargetAcceleration(motionState.getA());
             double power = controller.update(slides.getCurrentPosition(), slides.getRawVelocity());
+            power = power > 0.01 ? power + kG : power;
             left.setPower(power);
             right.setPower(power);
 
@@ -245,13 +251,41 @@ public class Manual extends RobotHardware {
         @Override
         public void update() {
             super.update();
-//            if(Math.abs(secondary.left_stick_y) < 0.2) {
-//                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(left.getEncoderValue()));
-//                return;
-//            }
+            if(Math.abs(secondary.left_stick_y) < 0.2) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(RobotConfiguration.LIFT_ENCODER.getAsEncoder().getCurrentPosition()));
+                return;
+            }
             double power = -secondary.left_stick_y < 0 ? -secondary.left_stick_y * slideDownSpeed : -secondary.left_stick_y * slideSpeed;
             left.setPower(power);
             right.setPower(power);
+        }
+    }
+
+    class AutoTransfer extends Executive.StateBase<Manual> {
+        @Override
+        public void init(Executive.StateMachine<Manual> stateMachine) {
+            super.init(stateMachine);
+            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(40));
+            armPosition = RobotConstants.ArmPosition.DOWN;
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!wristPosition.equals(RobotConstants.WristPosition.VERTICAL) && !(Math.abs(secondary.left_stick_y) < 0.2) && !(Math.abs(secondary.right_stick_y) < 0.2))
+                stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
+
+            if(stateTimer.seconds() > 0.5 && !armPosition.equals(RobotConstants.ArmPosition.GRAB) && stateMachine.getStateReferenceByType(Executive.StateMachine.StateType.SLIDES).isDone) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(5));
+                armPosition = RobotConstants.ArmPosition.GRAB;
+                left = RobotConstants.ClawPosition.MIDDLE;
+                right = RobotConstants.ClawPosition.MIDDLE;
+                stateTimer.reset();
+            } else if(stateTimer.seconds() > 1.0) {
+                left = RobotConstants.ClawPosition.GRAB;
+                right = RobotConstants.ClawPosition.GRAB;
+                stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
+            }
         }
     }
 }

@@ -27,7 +27,7 @@ public class SlidePIDTest extends RobotHardware {
     boolean movingForwards;
     double profileStart;
 
-    public static double kP = 0.03, kI = 0.0, kD = 0.0, kV = 0.0, kA = 0.0, kStatic = 0.17, setpoint = 400.0, targetVelo = 1000, targetAccel = 700;
+    public static double kP = 0.03, kI = 0.0, kD = 0.0, kV = 0.0, kA = 0.0, kStatic = 0.17, setpoint = 400.0, targetVelo = 1000, targetAccel = 700, kG = 0.04;
 
     private double prevKP = 0, prevKI = 0, prevKD = 0, prevKV = 0.0, prevKA = 0.0, prevKStatic = 0.0;
 
@@ -83,6 +83,7 @@ public class SlidePIDTest extends RobotHardware {
         controller.setTargetAcceleration(motionState.getA());
 
         double power = controller.update(lift.getCurrentPosition(), lift.getRawVelocity());
+        power = power > 0.01 ? power + kG : power;
 
         left.setPower(power);
         right.setPower(power);
@@ -105,8 +106,8 @@ public class SlidePIDTest extends RobotHardware {
     }
 
     private static MotionProfile generateProfile(boolean movingForward) {
-        MotionState start = new MotionState(movingForward ? 100 : setpoint, 0, 0, 0);
-        MotionState goal = new MotionState(movingForward ? setpoint : 100, 0, 0, 0);
+        MotionState start = new MotionState(movingForward ? 150 : setpoint, 0, 0, 0);
+        MotionState goal = new MotionState(movingForward ? setpoint : 150, 0, 0, 0);
         return MotionProfileGenerator.generateSimpleMotionProfile(start, goal, targetVelo, targetAccel);
     }
 }

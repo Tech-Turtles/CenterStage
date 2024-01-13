@@ -67,7 +67,9 @@ public class SpikeDetectionProcessor implements VisionProcessor {
             inRange(yCrCb, lowerBlue, upperBlue, maskBlue);
             Imgproc.findContours(maskBlue, blueContours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
-            blueContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon);
+            blueContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon
+                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
+                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
             Imgproc.drawContours(frame, blueContours, -1, blue, 2);
 
             blueContours.sort(Collections.reverseOrder(Comparator.comparingDouble(t0 -> Imgproc.boundingRect(t0).area())));
@@ -75,7 +77,7 @@ public class SpikeDetectionProcessor implements VisionProcessor {
                 MatOfPoint biggestRedContour = blueContours.get(0);
                 blueRect = Imgproc.boundingRect(biggestRedContour);
                 Imgproc.putText(frame, "Blue Rect", new Point(blueRect.x, blueRect.y < 10 ? (blueRect.y+blueRect.height+20) : (blueRect.y - 8)), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, green, 1);
-                Imgproc.circle(frame, new Point(blueRect.x + (blueRect.width/2.0), blueRect.y + (blueRect.height/2.0)), 3, green, 3);
+                Imgproc.circle(frame, new Point(blueRect.x + (blueRect.width/2.0), blueRect.y + (blueRect.height/2.0)), 3, green, 4);
             } catch (IndexOutOfBoundsException ignore) {}
             maskBlue.release();
             blueContours.clear();
@@ -85,7 +87,10 @@ public class SpikeDetectionProcessor implements VisionProcessor {
             inRange(yCrCb, lowerRed, upperRed, maskRed);
             Imgproc.findContours(maskRed, redContours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
-            redContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon);
+            redContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon
+                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
+                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
+
             Imgproc.drawContours(frame, redContours, -1, red, 2);
 
             redContours.sort(Collections.reverseOrder(Comparator.comparingDouble(t0 -> Imgproc.boundingRect(t0).area())));
@@ -93,7 +98,7 @@ public class SpikeDetectionProcessor implements VisionProcessor {
                 MatOfPoint biggestRedContour = redContours.get(0);
                 redRect = Imgproc.boundingRect(biggestRedContour);
                 Imgproc.putText(frame, "Red Rect", new Point(redRect.x, redRect.y < 10 ? (redRect.y + redRect.height + 20) : (redRect.y - 8)), Imgproc.FONT_HERSHEY_SIMPLEX, 0.8, green, 1);
-                Imgproc.circle(frame, new Point(redRect.x + (redRect.width / 2.0), redRect.y + (redRect.height / 2.0)), 3, green, 3);
+                Imgproc.circle(frame, new Point(redRect.x + (redRect.width / 2.0), redRect.y + (redRect.height / 2.0)), 3, green, 4);
             } catch (IndexOutOfBoundsException ignore) {}
             maskRed.release();
             redContours.clear();
