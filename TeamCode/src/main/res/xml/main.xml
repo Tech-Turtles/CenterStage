@@ -32,6 +32,7 @@
             <goBILDA5202SeriesMotor     name = "Slide Left"         port = "3"/>
             <Servo                      name = "Claw Right"         port = "1"/>
             <Servo                      name = "Claw Left"          port = "0"/>
+            <Servo                      name = "Drone"              port = "2"/>
             <Servo                      name = "Wrist"              port = "3"/>
             <Servo                      name = "Ramp"               port = "5"/>
         </LynxModule>

@@ -16,6 +16,7 @@ public class Controller {
 
     public double left_stick_x, right_stick_x, left_stick_y, right_stick_y;
     public double left_trigger, right_trigger;
+    public double touchpad_finger_1_x, touchpad_finger_1_y, touchpad_finger_1;
 
     public Controller(Gamepad g) {
         gamepad = g;
@@ -97,6 +98,11 @@ public class Controller {
         } else {
             right_bumper = 0;
         }
+        if(gamepad.touchpad_finger_1) {
+            ++touchpad_finger_1;
+        } else {
+            touchpad_finger_1 = 0;
+        }
 
         left_stick_x    = gamepad.left_stick_x;
         left_stick_y    = gamepad.left_stick_y;
@@ -104,6 +110,9 @@ public class Controller {
         right_stick_y   = gamepad.right_stick_y;
         left_trigger    = gamepad.left_trigger;
         right_trigger   = gamepad.right_trigger;
+
+        touchpad_finger_1_x = gamepad.touchpad_finger_1_x;
+        touchpad_finger_1_y = gamepad.touchpad_finger_1_y;
     }
 
     public boolean rightStickButton() {
@@ -128,6 +137,10 @@ public class Controller {
 
     public boolean dpadRight() {
         return 0 < dpad_right;
+    }
+
+    public boolean touchpad_finger_1() {
+        return 0 < touchpad_finger_1;
     }
 
     public boolean X() {

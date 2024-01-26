@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.core;
 
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.AXON_CONTINUOUS_PWM;
+import static org.firstinspires.ftc.teamcode.core.RobotConstants.AXON_PWM;
 
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -65,7 +66,7 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_FRONT_RIGHT(
             new AbsoluteEncoder("Front Right Encoder")
-            .zero(32.8)
+            .zero(129.0)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_LEFT(
@@ -196,6 +197,12 @@ public enum RobotConfiguration {
             .configureDirection(DcMotorSimple.Direction.REVERSE)
             .configureRunMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER)
             .setType(MotorTypes.OTHER)
+    ),
+    DRONE(
+            new Servo("Drone")
+            .configureDirection(com.qualcomm.robotcore.hardware.Servo.Direction.FORWARD)
+            .configurePWMRange(AXON_PWM)
+            .configureScale(0.0, 1.0)
     ),
     WEBCAM(
             new Webcam("Webcam")

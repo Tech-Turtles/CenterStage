@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
+import org.firstinspires.ftc.teamcode.hardware.Servo;
 import org.firstinspires.ftc.teamcode.swerve.SwerveDrive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
@@ -51,6 +52,7 @@ public class Manual extends RobotHardware {
         armPosition = RobotConstants.ArmPosition.START;
         left = RobotConstants.ClawPosition.OPEN;
         right = RobotConstants.ClawPosition.OPEN;
+        RobotConfiguration.DRONE.getAsServo().setPosition(1.0);
     }
 
     @Override
@@ -137,8 +139,12 @@ public class Manual extends RobotHardware {
                 RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.INTAKE.getPosition());
             } else {
                 RobotConfiguration.INTAKE.getAsMotor().setPower(0.0);
-                RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
+                if(!stateMachine.getCurrentStateByType(Executive.StateMachine.StateType.INTAKE).equals(DroneLaunch.class))
+                    RobotConfiguration.RAMP.getAsServo().setPosition(IntakePosition.DRIVE.getPosition());
             }
+
+            if(primary.dpadLeftOnce())
+                nextState(Executive.StateMachine.StateType.INTAKE, new DroneLaunch());
 
             if (secondary.leftTriggerOnce()) {
 //                right = right.equals(RobotConstants.ClawPosition.OPEN) ? RobotConstants.ClawPosition.CLOSE : RobotConstants.ClawPosition.OPEN;
@@ -177,6 +183,8 @@ public class Manual extends RobotHardware {
                 wristPosition = RobotConstants.WristPosition.RIGHT_HORIZONTAL;
             } else if(secondary.dpadLeftOnce()) {
                 wristPosition = RobotConstants.WristPosition.LEFT_HORIZONTAL;
+            } else if(secondary.touchpad_finger_1()) {
+                wristPosition = RobotConstants.WristPosition.MANUAL;
             }
 
             if(secondary.dpadDownOnce()) {
@@ -189,7 +197,8 @@ public class Manual extends RobotHardware {
             RobotConfiguration.ARM_LEFT.getAsServo().setPosition(armPosition.getLeftPos());
             RobotConfiguration.ARM_RIGHT.getAsServo().setPosition(armPosition.getRightPos());
 
-            RobotConfiguration.WRIST.getAsServo().setPosition(wristPosition.getPosition());
+            RobotConfiguration.WRIST.getAsServo().setPosition(wristPosition.equals(RobotConstants.WristPosition.MANUAL) ?
+                    (secondary.touchpad_finger_1_x + 1.0) / 2.0 * 1.08 : wristPosition.getPosition());
 
             RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(left.getLeftPos());
             RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(right.getRightPos());
@@ -245,6 +254,21 @@ public class Manual extends RobotHardware {
         }
     }
 
+    class Slide_Speed extends Executive.StateBase<Manual> {
+        private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
+        private final double speed;
+        Slide_Speed(double speed) {
+            this.speed = speed;
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            left.setPower(speed);
+            right.setPower(speed);
+        }
+    }
+
     class Slide_Manual extends Executive.StateBase<Manual> {
 
         private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
@@ -261,11 +285,30 @@ public class Manual extends RobotHardware {
         }
     }
 
-    class AutoTransfer extends Executive.StateBase<Manual> {
+    class DroneLaunch extends Executive.StateBase<Manual> {
+        private final Servo ramp = RobotConfiguration.RAMP.getAsServo();
         @Override
         public void init(Executive.StateMachine<Manual> stateMachine) {
             super.init(stateMachine);
-            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(40));
+            ramp.setPosition(IntakePosition.INTAKE.getPosition());
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(stateTimer.seconds() > 0.75) {
+                RobotConfiguration.DRONE.getAsServo().setPosition(0.5);
+            } else if(stateTimer.seconds() > 1.0)
+                stateMachine.removeStateByType(Executive.StateMachine.StateType.INTAKE);
+        }
+    }
+
+    class AutoTransfer extends Executive.StateBase<Manual> {
+        private boolean bool = false, bool2 = false, bool3 = false, bool4 = false;
+        @Override
+        public void init(Executive.StateMachine<Manual> stateMachine) {
+            super.init(stateMachine);
+            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(10));
             armPosition = RobotConstants.ArmPosition.DOWN;
         }
 
@@ -275,16 +318,24 @@ public class Manual extends RobotHardware {
             if(!wristPosition.equals(RobotConstants.WristPosition.VERTICAL) && !(Math.abs(secondary.left_stick_y) < 0.2) && !(Math.abs(secondary.right_stick_y) < 0.2))
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
 
-            if(stateTimer.seconds() > 0.5 && !armPosition.equals(RobotConstants.ArmPosition.GRAB) && stateMachine.getStateReferenceByType(Executive.StateMachine.StateType.SLIDES).isDone) {
-                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(5));
-                armPosition = RobotConstants.ArmPosition.GRAB;
+            if(stateTimer.seconds() > 0.5 && !bool && stateMachine.getStateReferenceByType(Executive.StateMachine.StateType.SLIDES).isDone) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(2));
                 left = RobotConstants.ClawPosition.MIDDLE;
                 right = RobotConstants.ClawPosition.MIDDLE;
                 stateTimer.reset();
-            } else if(stateTimer.seconds() > 1.0) {
+                bool = true;
+            } else if(stateTimer.seconds() > 0.3 && !bool2 && bool) {
                 left = RobotConstants.ClawPosition.GRAB;
                 right = RobotConstants.ClawPosition.GRAB;
+                bool2 = true;
+            } else if(stateTimer.seconds() > 0.5 && !bool3 && bool2) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
+                bool3 = true;
+            } else if(stateTimer.seconds() > 0.6 && !bool4 && bool3) {
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(80));
+                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
+                bool4 = true;
             }
         }
     }

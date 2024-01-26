@@ -20,8 +20,8 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
     public static double FORWARD_OFFSET = 0.0; // in; offset of the lateral wheel
 
     private final Encoder leftEncoder, rightEncoder, frontEncoder;
-    public static double X_MULTIPLIER = 0.9404384; // Multiplier in the X direction
-    public static double Y_MULTIPLIER = 0.96733; // Multiplier in the Y direction
+    public static double X_MULTIPLIER = 0.9304872451; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 0.9318336001; // Multiplier in the Y direction
 
     public ThreeTrackingWheelLocalizer() {
         super(Arrays.asList(

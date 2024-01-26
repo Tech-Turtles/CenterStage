@@ -67,9 +67,9 @@ public class SpikeDetectionProcessor implements VisionProcessor {
             inRange(yCrCb, lowerBlue, upperBlue, maskBlue);
             Imgproc.findContours(maskBlue, blueContours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
-            blueContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon
-                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
-                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
+            blueContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon);
+//                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
+//                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
             Imgproc.drawContours(frame, blueContours, -1, blue, 2);
 
             blueContours.sort(Collections.reverseOrder(Comparator.comparingDouble(t0 -> Imgproc.boundingRect(t0).area())));
@@ -87,9 +87,9 @@ public class SpikeDetectionProcessor implements VisionProcessor {
             inRange(yCrCb, lowerRed, upperRed, maskRed);
             Imgproc.findContours(maskRed, redContours, new Mat(), Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 
-            redContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon
-                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
-                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
+            redContours.removeIf(c -> Imgproc.contourArea(c) > max || Imgproc.contourArea(c) < min || Imgproc.boundingRect(c).y + (Imgproc.boundingRect(c).height / 2.0) < horizon);
+//                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).height > 2.0
+//                    || (Imgproc.boundingRect(c).height + Imgproc.boundingRect(c).width) / (double) Imgproc.boundingRect(c).width > 2.0);
 
             Imgproc.drawContours(frame, redContours, -1, red, 2);
 

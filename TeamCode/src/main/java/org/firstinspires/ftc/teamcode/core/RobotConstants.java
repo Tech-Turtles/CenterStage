@@ -55,7 +55,7 @@ public final class RobotConstants {
         START(0.3),
         DRIVE(0.55),
         INTAKE(0.89),
-        STACK(0.69);
+        STACK(0.67);
         private final double position;
         IntakePosition(double position) {
             this.position = position;
@@ -69,7 +69,7 @@ public final class RobotConstants {
     public enum ClawPosition {
         OPEN(0.1, .88),
         MIDDLE(0.32, .77),
-        GRAB(.51, .47);
+        GRAB(.55, .5);
         private final double leftPos, rightPos;
         ClawPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -92,14 +92,15 @@ public final class RobotConstants {
     }
 
     public enum ArmPosition {
-        START(0.77, 0.77),
-        GRAB(0.95, 0.95),
-        BETWEEN(0.9, 0.9),
-        DOWN(0.9, 0.9),
-        HOLD(0.77, 0.77),
-        TELEOP_POS(0.8, 0.8),
-        BACK_BOARD(0.52, 0.52),
-        SPIKE(0.43, 0.43);
+        START(0.77-.14, 0.77-.14),
+        GRAB(0.93-.09, 0.93-.09),
+        BETWEEN(0.9-.09, 0.9-.09),
+        DOWN(0.9-.09, 0.9-.09),
+        HOLD(0.77-.09, 0.77-.09),
+        TELEOP_POS(0.8-.07, 0.8-.07),
+        MIDDLE(0.6-.14, 0.6-.14),
+        BACK_BOARD(0.345, 0.345),
+        SPIKE(0.41-.14, 0.41-.14);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;
@@ -119,7 +120,8 @@ public final class RobotConstants {
         START(0.52),
         VERTICAL(0.52),
         LEFT_HORIZONTAL(0.78),
-        RIGHT_HORIZONTAL(0.25);
+        RIGHT_HORIZONTAL(0.25),
+        MANUAL(0);
         private final double position;
         WristPosition(double position) {
             this.position = position;

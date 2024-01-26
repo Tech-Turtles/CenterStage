@@ -37,6 +37,5 @@ dependencies {
     implementation group:'com.opencsv', name: 'opencsv', version: '5.3'
     implementation group:'org.yaml', name: 'snakeyaml', version: '1.21'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-//    implementation 'com.github.Eeshwar-Krishnan:PhotonFTC:v2.0.1'
     api "org.ejml:ejml-simple:0.41"
 }
