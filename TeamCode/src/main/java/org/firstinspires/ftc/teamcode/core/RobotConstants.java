@@ -52,10 +52,10 @@ public final class RobotConstants {
     public static double INTAKE_SPEED = 1.0;
     public static double OUTTAKE_SPEED = -0.7;
     public enum IntakePosition {
-        START(0.3),
-        DRIVE(0.55),
-        INTAKE(0.89),
-        STACK(0.67);
+        START(0.28),
+        DRIVE(0.52),
+        INTAKE(0.79),
+        STACK(0.69);
         private final double position;
         IntakePosition(double position) {
             this.position = position;
@@ -100,7 +100,7 @@ public final class RobotConstants {
         TELEOP_POS(0.8-.07, 0.8-.07),
         MIDDLE(0.6-.14, 0.6-.14),
         BACK_BOARD(0.345, 0.345),
-        SPIKE(0.41-.14, 0.41-.14);
+        SPIKE(0.41-.14, 0.41-.14), SLIGHT_POS(0.78, 0.78);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;

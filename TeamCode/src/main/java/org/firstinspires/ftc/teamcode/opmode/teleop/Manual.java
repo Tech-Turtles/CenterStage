@@ -333,7 +333,7 @@ public class Manual extends RobotHardware {
                 bool3 = true;
             } else if(stateTimer.seconds() > 0.6 && !bool4 && bool3) {
                 stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(80));
-                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
+                armPosition = RobotConstants.ArmPosition.SLIGHT_POS;
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
                 bool4 = true;
             }
