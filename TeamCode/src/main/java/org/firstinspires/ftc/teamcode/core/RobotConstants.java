@@ -55,7 +55,7 @@ public final class RobotConstants {
         START(0.28),
         DRIVE(0.52),
         INTAKE(0.79),
-        STACK(0.69);
+        STACK(0.68);
         private final double position;
         IntakePosition(double position) {
             this.position = position;
