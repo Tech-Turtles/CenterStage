@@ -71,7 +71,7 @@ public enum RobotConfiguration {
     ),
     ABSOLUTE_BACK_LEFT(
             new AbsoluteEncoder("Back Left Encoder")
-            .zero(240.9)
+            .zero(287.0)
             .setInverted(false)
     ),
     ABSOLUTE_BACK_RIGHT(

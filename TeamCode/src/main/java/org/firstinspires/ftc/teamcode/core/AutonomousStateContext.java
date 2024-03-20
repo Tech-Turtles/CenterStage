@@ -360,20 +360,22 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         @Override
         public void update() {
             super.update();
-            Rect rect = allianceColor.equals(AllianceColor.BLUE)
-                    ? webcam.getProcessor().getBlueRect()
-                    : webcam.getProcessor().getRedRect();
+//            Rect rect = allianceColor.equals(AllianceColor.BLUE)
+//                    ? webcam.getProcessor().getBlueRect()
+//                    : webcam.getProcessor().getRedRect();
+//
+//            try {
+//                double x = rect.x + rect.width / 2.0;
+//                if (x < leftBound)
+//                    spikePosition = SpikePosition.LEFT;
+//                else if (x > rightBound)
+//                    spikePosition = SpikePosition.RIGHT;
+//                else
+//                    spikePosition = SpikePosition.MIDDLE;
+//            } catch (NullPointerException ignore) {
+//            }
 
-            try {
-                double x = rect.x + rect.width / 2.0;
-                if (x < leftBound)
-                    spikePosition = SpikePosition.LEFT;
-                else if (x > rightBound)
-                    spikePosition = SpikePosition.RIGHT;
-                else
-                    spikePosition = SpikePosition.MIDDLE;
-            } catch (NullPointerException ignore) {
-            }
+            spikePosition = SpikePosition.MIDDLE;
 
             opMode.telemetry.addData("Spike", spikePosition.name());
 
@@ -679,7 +681,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 else if (spikePosition.equals(SpikePosition.RIGHT))
                     path = PathPlannerPath.fromPathFile("TopSpikeRightToCycleGrab");
                 else
-                    path = PathPlannerPath.fromPathFile("TopSpikeMiddleToCycleGrab");
+                    path = PathPlannerPath.fromPathFile("Brody Path");
             } else {
                 if(spikePosition.equals(SpikePosition.LEFT))
                     path = PathPlannerPath.fromPathFile("RedTopSpikeLeftToCycleGrab");
@@ -717,7 +719,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                     hasSetArm = true;
                 }
 
-                if(stateTimer.seconds() > trajectory.getTotalTimeSeconds() - 2.5 && !intakeStack) {
+                if(stateTimer.seconds() > trajectory.getTotalTimeSeconds() - 1.5 && !intakeStack) {
                     nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 1.0));
                     intakeStack = true;
                 }
@@ -772,31 +774,30 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 if(stateTimer.seconds() > 1.0 && !hasStopIntake) {
                     nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, -0.7, 0.0));
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.DOWN));
-                    nextState(StateType.SLIDES, new Slide_Position(10));
+                    nextState(StateType.SLIDES, new Slide_Position(300));
                     hasStopIntake = true;
                 }
 
-                if(stateTimer.seconds() > 1.75-0.25 && !bool) {
+                if(stateTimer.seconds() > 1.75-0.25 + 2.0 && !bool) {
                     nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
-                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(2));
-                    stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.MIDDLE, RobotConstants.ClawOrder.BOTH));
+                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-1.0));
                     bool = true;
-                } else if(stateTimer.seconds() > 2.25-0.25 && !bool2 && bool) {
+                } else if(stateTimer.seconds() > 1.85-0.25 + 2.0 && !bool2 && bool) {
                     stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.GRAB, RobotConstants.ClawOrder.BOTH));
                     bool2 = true;
-                } else if(stateTimer.seconds() > 2.45-0.25 && !bool3 && bool2) {
-                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
+                } else if(stateTimer.seconds() > 2.45-0.25 + 2.0 && !bool3 && bool2) {
+//                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
                     bool3 = true;
-                } else if(stateTimer.seconds() > 2.55-0.25 && !bool4 && bool3) {
+                } else if(stateTimer.seconds() > 2.55-0.25 + 2.0 && !bool4 && bool3) {
                     stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(200));
                     stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.SLIGHT_POS));
                     bool4 = true;
-                } else if(stateTimer.seconds() > 3.5 && !bool6 && bool4) {
+                } else if(stateTimer.seconds() > 3.5 + 2.0 && !bool6 && bool4) {
                     stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
                     bool6 = true;
                 }
 
-                if (currentTime > trajectory.getTotalTimeSeconds() + 1.0) {
+                if (currentTime > trajectory.getTotalTimeSeconds()) {
                     hasDriven = true;
                     stateTimer.reset();
                     output.accept(new ChassisSpeeds(0,0,0));
@@ -815,10 +816,156 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         @Override
         public void update() {
             super.update();
-            if(stateTimer.seconds() > 2.0)
+            if(stateTimer.seconds() > 0.5 && stateTimer.seconds() < 1.0)
                 stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
-            else if(stateTimer.seconds() > 3.0)
-                stateMachine.changeState(StateType.DRIVE, new Stop());
+            else if(stateTimer.seconds() > 1.5)
+                stateMachine.changeState(StateType.DRIVE, new CycleGrab2());
+        }
+    }
+
+    private class CycleGrab2 extends Executive.StateBase<Autonomous> {
+        private boolean hasRun = false, hasDriven = false, intakeStack = false, hasSetArm = false;
+        private double delay = 1.55;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path;
+            if(allianceColor.equals(AllianceColor.BLUE)) {
+                if(spikePosition.equals(SpikePosition.LEFT))
+                    path = PathPlannerPath.fromPathFile("TopSpikeLeftToCycleGrab");
+                else if (spikePosition.equals(SpikePosition.RIGHT))
+                    path = PathPlannerPath.fromPathFile("TopSpikeRightToCycleGrab");
+                else
+                    path = PathPlannerPath.fromPathFile("CycleGrab2");
+            } else {
+                if(spikePosition.equals(SpikePosition.LEFT))
+                    path = PathPlannerPath.fromPathFile("RedTopSpikeLeftToCycleGrab");
+                else if (spikePosition.equals(SpikePosition.RIGHT))
+                    path = PathPlannerPath.fromPathFile("RedTopSpikeRightToCycleGrab");
+                else
+                    path = PathPlannerPath.fromPathFile("RedTopSpikeMiddleToCycleGrab");
+            }
+            if(spikePosition.equals(SpikePosition.LEFT))
+                delay += 1.0;
+            else if(spikePosition.equals(SpikePosition.RIGHT))
+                delay += 1.5;
+            trajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!hasDriven) {
+                if (!hasRun) {
+                    stateTimer.reset();
+                    hasRun = true;
+                }
+                double currentTime = stateTimer.seconds();
+                PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
+                Pose2d currentPose = poseSupplier.get();
+                ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+                output.accept(targetSpeeds);
+
+                if(stateTimer.seconds() > delay && !hasSetArm) {
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
+                    nextState(StateType.SLIDES, new Slide_Position(10));
+                    hasSetArm = true;
+                }
+
+                if(stateTimer.seconds() > trajectory.getTotalTimeSeconds() - 1.5 && !intakeStack) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, 1.0));
+                    intakeStack = true;
+                }
+
+                if (currentTime > trajectory.getTotalTimeSeconds()) {
+                    hasDriven = true;
+                    stateTimer.reset();
+                    output.accept(new ChassisSpeeds(0,0,0));
+                }
+            } else {
+                if (stateTimer.seconds() > 0.5) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, 0.8, 0.0));
+                    nextState(StateType.DRIVE, new CyclePlace2());
+                }
+            }
+        }
+    }
+
+    private class CyclePlace2 extends Executive.StateBase<Autonomous> {
+        private boolean hasRun = false, hasDriven = false, hasStopIntake = false, bool = false, bool2 = false, bool3 = false, bool4 = false, bool5 = false, bool6 = false;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path;
+            if(allianceColor.equals(AllianceColor.BLUE)) {
+                path = PathPlannerPath.fromPathFile("TopCycleGrabToCyclePlace");
+            } else {
+                path = PathPlannerPath.fromPathFile("RedTopCycleGrabToCyclePlace");
+            }
+
+            trajectory = new PathPlannerTrajectory(path, currentSpeeds);
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+        }
+
+        @Override
+        public void update() {
+            super.update();
+            if(!hasDriven) {
+                if (!hasRun) {
+                    stateTimer.reset();
+                    hasRun = true;
+                }
+                double currentTime = stateTimer.seconds();
+                PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
+                Pose2d currentPose = poseSupplier.get();
+                ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+                output.accept(targetSpeeds);
+
+                if(stateTimer.seconds() > 1.0 && !hasStopIntake) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, -0.7, 0.0));
+                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.DOWN));
+                    nextState(StateType.SLIDES, new Slide_Position(400));
+                    hasStopIntake = true;
+                }
+
+                if(stateTimer.seconds() > 1.75-0.25 + 2.0 && !bool) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
+                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-1.0));
+                    bool = true;
+                } else if(stateTimer.seconds() > 1.85-0.25 + 2.0 && !bool2 && bool) {
+                    stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.GRAB, RobotConstants.ClawOrder.BOTH));
+                    bool2 = true;
+                } else if(stateTimer.seconds() > 2.45-0.25 + 2.0 && !bool3 && bool2) {
+//                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
+                    bool3 = true;
+                } else if(stateTimer.seconds() > 2.55-0.25 + 2.0 && !bool4 && bool3) {
+                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(200));
+                    stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.SLIGHT_POS));
+                    bool4 = true;
+                } else if(stateTimer.seconds() > 3.5 + 2.0 && !bool6 && bool4) {
+                    stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+                    bool6 = true;
+                }
+
+                if (currentTime > trajectory.getTotalTimeSeconds() + 1.0) {
+                    hasDriven = true;
+                    stateTimer.reset();
+                    output.accept(new ChassisSpeeds(0,0,0));
+                }
+            } else {
+                if(!bool5) {
+                    stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.BOTH, 1.0));
+//                    nextState(StateType.DRIVE, new FinishCycle());
+                    bool5 = true;
+                }
+            }
         }
     }
 

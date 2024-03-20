@@ -23,8 +23,6 @@
             <Servo                      name = "Arm Left"             port = "1"/>
             <Servo                      name = "Arm Right"            port = "0"/>
         </LynxModule>
-    </LynxUsbDevice>
-    <LynxUsbDevice name="Expansion Hub Portal 1" serialNumber="DQ3M0WDC" parentModuleAddress="2">
         <LynxModule name="Expansion Hub 2" port="2">
             <goBILDA5202SeriesMotor     name = "Intake"             port = "0"/>
             <goBILDA5202SeriesMotor     name = "Lift"               port = "1"/>

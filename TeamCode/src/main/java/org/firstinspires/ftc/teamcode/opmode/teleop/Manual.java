@@ -308,8 +308,10 @@ public class Manual extends RobotHardware {
         @Override
         public void init(Executive.StateMachine<Manual> stateMachine) {
             super.init(stateMachine);
-            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(10));
+            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(400));
             armPosition = RobotConstants.ArmPosition.DOWN;
+            left = RobotConstants.ClawPosition.OPEN;
+            right = RobotConstants.ClawPosition.OPEN;
         }
 
         @Override
@@ -319,21 +321,18 @@ public class Manual extends RobotHardware {
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
 
             if(stateTimer.seconds() > 0.5 && !bool && stateMachine.getStateReferenceByType(Executive.StateMachine.StateType.SLIDES).isDone) {
-                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(2));
-                left = RobotConstants.ClawPosition.MIDDLE;
-                right = RobotConstants.ClawPosition.MIDDLE;
-                stateTimer.reset();
+                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-1.0));
                 bool = true;
-            } else if(stateTimer.seconds() > 0.3 && !bool2 && bool) {
+            } else if(stateTimer.seconds() > 0.08 && !bool2 && bool) {
+                stateTimer.reset();
+                bool2 = true;
+            } else if(stateTimer.seconds() > 0.4 && !bool3 && bool2) {
                 left = RobotConstants.ClawPosition.GRAB;
                 right = RobotConstants.ClawPosition.GRAB;
-                bool2 = true;
-            } else if(stateTimer.seconds() > 0.5 && !bool3 && bool2) {
-                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
                 bool3 = true;
-            } else if(stateTimer.seconds() > 0.6 && !bool4 && bool3) {
+            } else if(stateTimer.seconds() > 0.58 && !bool4 && bool3) {
                 stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(80));
-                armPosition = RobotConstants.ArmPosition.SLIGHT_POS;
+                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
                 bool4 = true;
             }
