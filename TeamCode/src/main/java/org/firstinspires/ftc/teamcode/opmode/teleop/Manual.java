@@ -308,8 +308,7 @@ public class Manual extends RobotHardware {
         @Override
         public void init(Executive.StateMachine<Manual> stateMachine) {
             super.init(stateMachine);
-            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(400));
-            armPosition = RobotConstants.ArmPosition.DOWN;
+            stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(50));
             left = RobotConstants.ClawPosition.OPEN;
             right = RobotConstants.ClawPosition.OPEN;
         }
@@ -321,7 +320,7 @@ public class Manual extends RobotHardware {
                 stateMachine.removeStateByType(Executive.StateMachine.StateType.ARM);
 
             if(stateTimer.seconds() > 0.5 && !bool && stateMachine.getStateReferenceByType(Executive.StateMachine.StateType.SLIDES).isDone) {
-                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-1.0));
+                armPosition = RobotConstants.ArmPosition.DOWN;
                 bool = true;
             } else if(stateTimer.seconds() > 0.08 && !bool2 && bool) {
                 stateTimer.reset();
