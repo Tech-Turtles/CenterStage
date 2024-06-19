@@ -502,7 +502,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                     nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0));
                 }
 
-                if (currentTime > trajectory.getTotalTimeSeconds() + 0.25) {
+                if (currentTime > trajectory.getTotalTimeSeconds()) {
                     hasDriven = true;
                     stateTimer.reset();
                     output.accept(new ChassisSpeeds(0,0,0));
@@ -668,7 +668,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
     private class DriveSpikeCycleGrab extends Executive.StateBase<Autonomous> {
         private boolean hasRun = false, hasDriven = false, intakeStack = false, hasSetArm = false, bool = false;
-        private double delay = 1.55;
+        private double delay = 1.8;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -715,12 +715,12 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
                 if(stateTimer.seconds() > delay && !hasSetArm) {
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
-                    nextState(StateType.SLIDES, new Slide_Speed(-0.5));
+                    nextState(StateType.SLIDES, new Slide_Position(100));
                     hasSetArm = true;
                 }
 
                 if(stateTimer.seconds() > delay + 0.5 && !bool) {
-                    nextState(StateType.SLIDES, new Slide_Speed(-0.5));
+//                    nextState(StateType.SLIDES, new Slide_Speed(-0.5));
                     bool = true;
                 }
 
@@ -778,8 +778,8 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
                 output.accept(targetSpeeds);
 
-                if(stateTimer.seconds() > 0.5 && !hasStopIntake) {
-                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, -0.7, 0.0));
+                if(stateTimer.seconds() > 0.7 && !hasStopIntake) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, -1.0, 0.0));
                     hasStopIntake = true;
                 } else if(stateTimer.seconds() > 1.5 && !bool7) {
                     nextState(StateType.SLIDES, new Slide_Position(50));
@@ -834,7 +834,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
     private class CycleGrab2 extends Executive.StateBase<Autonomous> {
         private boolean hasRun = false, hasDriven = false, intakeStack = false, hasSetArm = false, bool = false;
-        private double delay = 1.55;
+        private double delay = 1.8;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -900,6 +900,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                     hasDriven = true;
                     stateTimer.reset();
                     output.accept(new ChassisSpeeds(0,0,0));
+                    nextState(StateType.SLIDES, new Slide_Position(100));
                 }
             } else {
                 if (stateTimer.seconds() > 0.5) {
@@ -945,8 +946,8 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
                 output.accept(targetSpeeds);
 
-                if(stateTimer.seconds() > 0.5 && !hasStopIntake) {
-                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, -0.7, 0.0));
+                if(stateTimer.seconds() > 0.7 && !hasStopIntake) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.INTAKE, -1.0, 0.0));
                     hasStopIntake = true;
                 } else if(stateTimer.seconds() > 1.5 && !bool7) {
                     nextState(StateType.SLIDES, new Slide_Position(50));
