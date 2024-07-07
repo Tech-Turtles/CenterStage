@@ -35,7 +35,7 @@ public final class RobotConstants {
     public static final double SWERVE_PRECISION_SPEED = 0.5;
     // seconds; delay between heading correction and last heading input,
     // allowing robot to continue its momentum before correcting
-    public static double HEADING_TIME = 0.1;
+    public static double HEADING_TIME = 0.03857;
 
     public static final String BACK_PARK = "BackPark";
     //ToDo Incorporate path constants into routine enum
@@ -67,7 +67,7 @@ public final class RobotConstants {
     }
 
     public enum ClawPosition {
-        OPEN(0.1, .88),
+        OPEN(0.16, .88),
         MIDDLE(0.32, .77),
         GRAB(.55, .5);
         private final double leftPos, rightPos;
@@ -99,8 +99,8 @@ public final class RobotConstants {
         HOLD(0.77-.09, 0.77-.09),
         TELEOP_POS(0.8-.07, 0.8-.07),
         MIDDLE(0.6-.14, 0.6-.14),
-        BACK_BOARD(0.345, 0.345),
-        SPIKE(0.41-.14, 0.41-.14), SLIGHT_POS(0.78, 0.78);
+        BACK_BOARD(0.3, 0.3),
+        SPIKE(0.41-.14 - .3, 0.41-.14 - .3), SLIGHT_POS(0.78, 0.78);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;

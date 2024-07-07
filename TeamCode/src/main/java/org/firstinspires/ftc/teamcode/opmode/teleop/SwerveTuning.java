@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.AbsoluteEncoder;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Encoder;
+import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
@@ -42,6 +43,8 @@ public class SwerveTuning extends RobotHardware {
         OFFSET,
         ANGLE_PID,
         DRIVE_PID,
+        SINGLE_ANGLE_PID,
+        SINGLE_MOTOR,
         kStatic
     }
     private AbsoluteEncoder frontLeft, frontRight, backLeft, backRight;
@@ -122,6 +125,55 @@ public class SwerveTuning extends RobotHardware {
 
                 swerveDrive.drive(new Translation2d(xVelocity$, yVelocity$), angVelocity$, false, true);
                 telemetry.addData("Index", index);
+                break;
+            case SINGLE_ANGLE_PID:
+                ContinuousServo servo;
+                switch (angleWheel) {
+                    case FRONT_LEFT:
+                        servo = RobotConfiguration.ANGLE_FRONT_LEFT.getAsContinuousServo();
+                        break;
+                    case FRONT_RIGHT:
+                        servo = RobotConfiguration.ANGLE_FRONT_RIGHT.getAsContinuousServo();
+                        break;
+                    case BACK_LEFT:
+                        servo = RobotConfiguration.ANGLE_BACK_LEFT.getAsContinuousServo();
+                        break;
+                    default:
+                        servo = RobotConfiguration.ANGLE_BACK_RIGHT.getAsContinuousServo();
+                }
+                servo.configurePIDF(aP, aI, aD);
+
+                if(reverse) {
+                    if(changeDirection.seconds() > changeDirectionTime) {
+                        changeDirection.reset();
+                        reverse = false;
+                    }
+                    servo.setReference(angleSetpointStart, aFF);
+                } else {
+                    if(changeDirection.seconds() > changeDirectionTime) {
+                        changeDirection.reset();
+                        reverse = true;
+                    }
+                    servo.setReference(angleSetpointEnd, aFF);
+                }
+                break;
+            case SINGLE_MOTOR:
+                Motor motor;
+                switch (angleWheel) {
+                    case FRONT_LEFT:
+                        motor = RobotConfiguration.DRIVE_FRONT_LEFT.getAsMotor();
+                        break;
+                    case FRONT_RIGHT:
+                        motor = RobotConfiguration.DRIVE_FRONT_RIGHT.getAsMotor();
+                        break;
+                    case BACK_LEFT:
+                        motor = RobotConfiguration.DRIVE_BACK_LEFT.getAsMotor();
+                        break;
+                    default:
+                        motor = RobotConfiguration.DRIVE_BACK_RIGHT.getAsMotor();
+                }
+
+                motor.setPower(-primary.left_stick_y);
                 break;
             case kStatic:
                 ContinuousServo s;

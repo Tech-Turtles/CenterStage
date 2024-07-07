@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.core.RobotConstants.DEADZONE;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.INTAKE_SPEED;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.IntakePosition;
 import static org.firstinspires.ftc.teamcode.core.RobotConstants.OUTTAKE_SPEED;
-import static org.firstinspires.ftc.teamcode.core.RobotConstants.WRIST_CENTER;
 import static org.firstinspires.ftc.teamcode.opmode.autonomous.SlidePIDTest.kG;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -119,9 +118,9 @@ public class Manual extends RobotHardware {
                 SwerveDrive.updatedHeading = true;
             }
 
-            double xV = -primary.left_stick_y * swerveControllerConfiguration.maxSpeed * precisionMode;
-            double yV = -primary.left_stick_x * swerveControllerConfiguration.maxSpeed * precisionMode;
-            double thetaV = -primary.right_stick_x * swerveControllerConfiguration.maxAngularVelocity * precisionMode;
+            double xV = Math.pow(-primary.left_stick_y, 3) * swerveControllerConfiguration.maxSpeed * precisionMode;
+            double yV = Math.pow(-primary.left_stick_x, 3) * swerveControllerConfiguration.maxSpeed * precisionMode;
+            double thetaV = Math.pow(-primary.right_stick_x, 3) * swerveControllerConfiguration.maxAngularVelocity * precisionMode;
             swerveDrive.drive(new Translation2d(xV, yV), thetaV, fieldRelative, true, headingCorrection);
             swerveDrive.updateOdometry();
 

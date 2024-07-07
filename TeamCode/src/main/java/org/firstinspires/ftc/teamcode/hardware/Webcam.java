@@ -2,12 +2,17 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import android.util.Size;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
 import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
+import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
+import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 //ToDo (Low Priority) Allow for multiple vision processors to be passed
 public class Webcam extends HardwareDevice {
@@ -18,6 +23,7 @@ public class Webcam extends HardwareDevice {
     private Size resolution = new Size(640, 480);
     private int liveViewContainerId = 0; // 0 == none
     private VisionPortal.StreamFormat streamFormat = VisionPortal.StreamFormat.MJPEG;
+    private AprilTagProcessor aprilTag;
 
     public Webcam(String configName) {
         super(configName, WebcamName.class);
@@ -32,6 +38,23 @@ public class Webcam extends HardwareDevice {
 
         this.device = (WebcamName) device;
 
+        aprilTag = new AprilTagProcessor.Builder()
+                .setDrawAxes(false)
+                .setDrawCubeProjection(true)
+                .setDrawTagOutline(true)
+                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+                .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .build();
+
+        // Adjust Image Decimation to trade-off detection-range for detection-rate.
+        // eg: Some typical detection data using a Logitech C920 WebCam
+        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
+        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
+        aprilTag.setDecimation(2);
+
         visionProcessor = new SpikeDetectionProcessor();
 
         VisionPortal.Builder builder = new VisionPortal.Builder()
@@ -41,9 +64,14 @@ public class Webcam extends HardwareDevice {
 //                .setLiveViewContainerId(liveViewContainerId)
                 .setStreamFormat(streamFormat);
 
+        builder.setCameraResolution(new Size(640, 480));
+
+        // Set and enable the processor.
+        builder.addProcessor(aprilTag);
+
         visionPortal = builder.build();
         visionPortal.setProcessorEnabled(visionProcessor, true);
-
+        visionPortal.setProcessorEnabled(aprilTag, false);
 
         setStatus(HardwareStatus.SUCCESS);
     }
@@ -79,6 +107,16 @@ public class Webcam extends HardwareDevice {
 
     public SpikeDetectionProcessor getProcessor() {
         return (SpikeDetectionProcessor) visionProcessor;
+    }
+
+    public AprilTagProcessor getAprilTagProcessor() {
+        return aprilTag;
+    }
+
+    public void enableAprilTagProcessor() {
+        disableProcessor();
+        if(visionPortal != null && !visionPortal.getProcessorEnabled(aprilTag))
+            visionPortal.setProcessorEnabled(aprilTag, true);
     }
 
     public void stop() {

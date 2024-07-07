@@ -7,15 +7,18 @@ import org.firstinspires.ftc.teamcode.hardware.IMU;
 import org.firstinspires.ftc.teamcode.opmode.teleop.Manual;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveControllerConfiguration;
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveDriveConfiguration;
+import org.firstinspires.ftc.teamcode.swerve.odometry.TwoWheelTrackingLocalizer;
 import org.firstinspires.ftc.teamcode.utility.math.ElapsedTimer;
 import org.firstinspires.ftc.teamcode.utility.math.Matrix;
 import org.firstinspires.ftc.teamcode.utility.math.VecBuilder;
 import org.firstinspires.ftc.teamcode.utility.math.controller.SimpleMotorFeedforward;
 import org.firstinspires.ftc.teamcode.utility.math.filter.SlewRateLimiter;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose3d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation3d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Transform2d;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Transform3d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation3d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Twist2d;
@@ -23,6 +26,7 @@ import org.firstinspires.ftc.teamcode.utility.math.kinematics.ChassisSpeeds;
 import org.firstinspires.ftc.teamcode.utility.math.kinematics.SwerveModulePosition;
 import org.firstinspires.ftc.teamcode.utility.math.numbers.N1;
 import org.firstinspires.ftc.teamcode.utility.math.numbers.N3;
+import org.firstinspires.ftc.teamcode.utility.math.util.Units;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -188,7 +192,7 @@ public class SwerveDrive {
         // Originally made by FRC1466 Webb Robotics.
         if (headingCorrection) {
             if (Math.abs(rotation) < 0.01) {
-                if(timer.seconds() > RobotConstants.HEADING_TIME || updatedHeading) {
+                if(timer.seconds() > RobotConstants.HEADING_TIME * getRobotVelocity().omegaRadiansPerSecond || updatedHeading) {
                     velocity.omegaRadiansPerSecond =
                             swerveController.headingCalculate(getYaw().getRadians(), lastHeadingRadians);
                 } else {
@@ -585,55 +589,13 @@ public class SwerveDrive {
         odometry.update();
 //        swerveDrivePoseEstimator.update(getYaw(), getPitch(), getRoll(), getModulePositions());
     }
+    private Transform3d camConstant =
+            new Transform3d(new Translation3d(Units.inchesToMeters(-6.715), 0.0, Units.inchesToMeters(4.5)), new Rotation3d(0.0, 0.0, Math.toRadians(180)));
 
-//    /**
-//     * Add a vision measurement to the {@link SwerveDrivePoseEstimator} and update the {@link SwerveIMU} gyro reading with
-//     * the given timestamp of the vision measurement.
-//     *
-//     * @param robotPose       Robot {@link Pose2d} as measured by vision.
-//     * @param timestamp       Timestamp the measurement was taken as time since startup
-//     * @param soft            Add vision estimate using the
-//     *                        {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)} function, or hard
-//     *                        reset odometry with the given position with
-//     *                        {@link edu.wpi.first.math.kinematics.SwerveDriveOdometry#resetPosition(Rotation2d,
-//     *                        SwerveModulePosition[], Pose2d)}.
-//     * @param trustWorthiness Trust level of vision reading when using a soft measurement, used to multiply the standard
-//     *                        deviation. Set to 1 for full trust.
-//     */
-//    public void addVisionMeasurement(Pose2d robotPose, double timestamp, boolean soft, double trustWorthiness)
-//    {
-//        if (soft)
-//        {
-//            swerveDrivePoseEstimator.addVisionMeasurement(robotPose, timestamp,
-//                    visionMeasurementStdDevs.times(1.0 / trustWorthiness));
-//        } else
-//        {
-//            swerveDrivePoseEstimator.resetPosition(
-//                    robotPose.getRotation(), getModulePositions(), robotPose);
-//        }
-//    }
-//
-//    /**
-//     * Add a vision measurement to the {@link SwerveDrivePoseEstimator} and update the {@link SwerveIMU} gyro reading with
-//     * the given timestamp of the vision measurement.
-//     *
-//     * @param robotPose                Robot {@link Pose2d} as measured by vision.
-//     * @param timestamp                Timestamp the measurement was taken as time since startup.
-//     * @param soft                     Add vision estimate using the
-//     *                                 {@link SwerveDrivePoseEstimator#addVisionMeasurement(Pose2d, double)} function, or
-//     *                                 hard reset odometry with the given position with
-//     *                                 {@link edu.wpi.first.math.kinematics.SwerveDriveOdometry#resetPosition(Rotation2d,
-//     *                                 SwerveModulePosition[], Pose2d)}.
-//     * @param visionMeasurementStdDevs Vision measurement standard deviation that will be sent to the
-//     *                                 {@link SwerveDrivePoseEstimator}.
-//     */
-//    public void addVisionMeasurement(Pose2d robotPose, double timestamp, boolean soft,
-//                                     Matrix<N3, N1> visionMeasurementStdDevs)
-//    {
-//        this.visionMeasurementStdDevs = visionMeasurementStdDevs;
-//        addVisionMeasurement(robotPose, timestamp, soft, 1);
-//    }
-
+    public void addVisionMeasurement(Pose3d camPose)
+    {
+        resetOdometry(camPose.plus(camConstant).toPose2d());
+    }
 
     /**
      * Set the expected gyroscope angle using a {@link Rotation3d} object. To reset gyro, set to a new
