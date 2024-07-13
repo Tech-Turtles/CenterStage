@@ -96,7 +96,7 @@ public class TimingMonitor {
             previousTime = checkpointMaxTimes.get(checkpointIndex);
 //            if(currentTime > previousTime) {
                 // Store new time if it is longer.
-                checkpointMaxTimes.set(checkpointIndex,currentTime);
+            checkpointMaxTimes.set(checkpointIndex,currentTime);
 //            }
         }
         // Increment the checkpoint index
@@ -119,7 +119,7 @@ public class TimingMonitor {
                 previousTime = checkpointMaxTimes.get(checkpointIndex);
 //                if (currentTime > previousTime) {
                     // Store new time if it is longer.
-                    checkpointMaxTimes.set(checkpointIndex, currentTime);
+                checkpointMaxTimes.set(checkpointIndex, currentTime);
 //                }
 
                 //Error check the name index

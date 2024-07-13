@@ -35,7 +35,8 @@ public final class RobotConstants {
     public static final double SWERVE_PRECISION_SPEED = 0.5;
     // seconds; delay between heading correction and last heading input,
     // allowing robot to continue its momentum before correcting
-    public static double HEADING_TIME = 0.03857;
+    public static double HEADING_TIME = 0.1;
+    public static double TAG_UPDATE_TIME = 1.0;
 
     public static final String BACK_PARK = "BackPark";
     //ToDo Incorporate path constants into routine enum

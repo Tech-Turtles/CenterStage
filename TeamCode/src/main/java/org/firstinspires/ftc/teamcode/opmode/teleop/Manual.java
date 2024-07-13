@@ -169,10 +169,11 @@ public class Manual extends RobotHardware {
                 wristPosition = RobotConstants.WristPosition.VERTICAL;
             } else if (-secondary.right_stick_y < -DEADZONE)
                 armPosition = RobotConstants.ArmPosition.BACK_BOARD;
-            else if (secondary.rightStickButtonOnce())
-                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
-            else if (secondary.XOnce()) {
+            else if (secondary.rightStickButtonOnce()) {
                 armPosition = RobotConstants.ArmPosition.DOWN;
+                wristPosition = RobotConstants.WristPosition.VERTICAL;
+            } else if (secondary.XOnce()) {
+                armPosition = RobotConstants.ArmPosition.TELEOP_POS;
                 wristPosition = RobotConstants.WristPosition.VERTICAL;
             }
 

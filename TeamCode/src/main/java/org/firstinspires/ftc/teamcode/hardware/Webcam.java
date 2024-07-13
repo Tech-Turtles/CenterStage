@@ -39,12 +39,7 @@ public class Webcam extends HardwareDevice {
         this.device = (WebcamName) device;
 
         aprilTag = new AprilTagProcessor.Builder()
-                .setDrawAxes(false)
-                .setDrawCubeProjection(true)
-                .setDrawTagOutline(true)
-                .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-                .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-                .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+                .setLensIntrinsics(549.651, 549.651, 317.108, 236.644)
                 .build();
 
         // Adjust Image Decimation to trade-off detection-range for detection-rate.
@@ -61,6 +56,7 @@ public class Webcam extends HardwareDevice {
                 .setCamera(this.device)
                 .addProcessor(visionProcessor)
                 .setCameraResolution(resolution)
+                .enableLiveView(false)
 //                .setLiveViewContainerId(liveViewContainerId)
                 .setStreamFormat(streamFormat);
 
@@ -70,7 +66,7 @@ public class Webcam extends HardwareDevice {
         builder.addProcessor(aprilTag);
 
         visionPortal = builder.build();
-        visionPortal.setProcessorEnabled(visionProcessor, true);
+        visionPortal.setProcessorEnabled(visionProcessor, false);
         visionPortal.setProcessorEnabled(aprilTag, false);
 
         setStatus(HardwareStatus.SUCCESS);

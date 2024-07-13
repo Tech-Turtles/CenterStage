@@ -47,7 +47,6 @@ public class ThreeTrackingWheelLocalizer extends com.acmerobotics.roadrunner.loc
                 encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER,
                 encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER
         );
-
     }
 
     @NonNull

@@ -9,12 +9,12 @@ import org.firstinspires.ftc.teamcode.utility.math.util.Units;
 
 public enum AprilTagPosition {
     NONE(new Pose3d()),
-    BLUE_LEFT(new Pose2d(Units.inchesToMeters(29.16f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
-    BLUE_CENTER(new Pose2d(Units.inchesToMeters(29.16f + 6.0f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
-    BLUE_RIGHT(new Pose2d(Units.inchesToMeters(29.16f + 12.0f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
-    RED_LEFT(new Pose2d(Units.inchesToMeters(100.0f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
-    RED_CENTER(new Pose2d(Units.inchesToMeters(100.0f + 6.0f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
-    RED_RIGHT(new Pose2d(Units.inchesToMeters(100.0f + 12.0f), Units.inchesToMeters(8.39f), Rotation2d.fromDegrees(180.0))),
+    BLUE_LEFT(new Pose2d(Units.inchesToMeters(29.16f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
+    BLUE_CENTER(new Pose2d(Units.inchesToMeters(29.16f + 6.0f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
+    BLUE_RIGHT(new Pose2d(Units.inchesToMeters(29.16f + 12.0f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
+    RED_LEFT(new Pose2d(Units.inchesToMeters(100.0f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
+    RED_CENTER(new Pose2d(Units.inchesToMeters(100.0f + 6.0f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
+    RED_RIGHT(new Pose2d(Units.inchesToMeters(100.0f + 12.0f), Units.inchesToMeters(179.672796f), Rotation2d.fromDegrees(180.0))),
     RED_WALL_LARGE(new Pose3d(
             Units.inchesToMeters(60.25f), Units.inchesToMeters(41.41f), Units.inchesToMeters(4f),
             new Rotation3d(new Quaternion(0.3536f, -0.6124f, 0.6124f, -0.3536f)))),
@@ -28,13 +28,13 @@ public enum AprilTagPosition {
             Units.inchesToMeters(60.25f), Units.inchesToMeters(41.41f), Units.inchesToMeters(4f),
             new Rotation3d(new Quaternion(0.3536f, -0.6124f, 0.6124f, -0.3536f)))),
     SHARED_LEFT(new Pose3d(
-            Units.inchesToMeters(64.6f), Units.inchesToMeters(8.39f), Units.inchesToMeters(4f),
+            Units.inchesToMeters(64.6f), Units.inchesToMeters(179.672796f), Units.inchesToMeters(4f),
             new Rotation3d(new Quaternion(0.3536f, -0.6124f, 0.6124f, -0.3536f)))),
     SHARED_CENTER(new Pose3d(
-            Units.inchesToMeters(70.6f), Units.inchesToMeters(8.39f), Units.inchesToMeters(4f),
+            Units.inchesToMeters(70.6f), Units.inchesToMeters(179.672796f), Units.inchesToMeters(4f),
             new Rotation3d(new Quaternion(0.3536f, -0.6124f, 0.6124f, -0.3536f)))),
     SHARED_RIGHT(new Pose3d(
-            Units.inchesToMeters(76.6f), Units.inchesToMeters(8.39f), Units.inchesToMeters(4f),
+            Units.inchesToMeters(76.6f), Units.inchesToMeters(179.672796f), Units.inchesToMeters(4f),
             new Rotation3d(new Quaternion(0.3536f, -0.6124f, 0.6124f, -0.3536f))));
 
     private Pose3d pose;

@@ -57,6 +57,10 @@ public class Pose2d implements Interpolatable<Pose2d> {
         return transformBy(other);
     }
 
+    public Pose2d add(Pose2d other) {
+        return new Pose2d(m_translation.plus(other.m_translation), m_rotation.plus(other.getRotation()));
+    }
+
     /**
      * Returns the Transform2d that maps the one pose to another.
      *
@@ -66,6 +70,10 @@ public class Pose2d implements Interpolatable<Pose2d> {
     public Transform2d minus(Pose2d other) {
         final Pose2d pose = this.relativeTo(other);
         return new Transform2d(pose.getTranslation(), pose.getRotation());
+    }
+
+    public Pose2d subtract(Pose2d other) {
+        return new Pose2d(m_translation.minus(other.m_translation), m_rotation.minus(other.getRotation()));
     }
 
     /**

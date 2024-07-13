@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.core.RobotConfiguration;
+import org.firstinspires.ftc.teamcode.core.RobotConstants;
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
 
@@ -13,6 +14,8 @@ public class ArmTest extends RobotHardware {
     private final Servo
             left = RobotConfiguration.ARM_LEFT.getAsServo(),
             right = RobotConfiguration.ARM_RIGHT.getAsServo();
+
+    public static RobotConstants.ClawPosition claw = RobotConstants.ClawPosition.OPEN;
 
     public static double l1 = 0.0, l2 = 0.5, l3 = 0.85, r1 = 0.0, r2 = 0.5, r3 = 0.85;
     public static int state = 1;
@@ -58,6 +61,9 @@ public class ArmTest extends RobotHardware {
                     right.setPosition(r3);
                     break;
             }
+
+            RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(claw.getLeftPos());
+            RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(claw.getRightPos());
         }
     }
 }

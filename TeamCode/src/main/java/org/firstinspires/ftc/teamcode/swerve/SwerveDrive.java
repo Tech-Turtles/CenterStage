@@ -191,8 +191,8 @@ public class SwerveDrive {
         // Heading Angular Velocity Deadband, might make a configuration option later.
         // Originally made by FRC1466 Webb Robotics.
         if (headingCorrection) {
-            if (Math.abs(rotation) < 0.01) {
-                if(timer.seconds() > RobotConstants.HEADING_TIME * getRobotVelocity().omegaRadiansPerSecond || updatedHeading) {
+            if (Math.abs(rotation) < 0.09) {
+                if(timer.seconds() > RobotConstants.HEADING_TIME || updatedHeading) {
                     velocity.omegaRadiansPerSecond =
                             swerveController.headingCalculate(getYaw().getRadians(), lastHeadingRadians);
                 } else {
@@ -207,13 +207,13 @@ public class SwerveDrive {
 
         // Calculate required module states via kinematics
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), isOpenLoop);
-        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
-        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
-                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
-
-        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
-            poseHistory.removeFirst();
-        }
+//        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
+//        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
+//                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
+//
+//        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
+//            poseHistory.removeFirst();
+//        }
     }
 
     public void drive(ChassisSpeeds velocity) {
@@ -233,13 +233,13 @@ public class SwerveDrive {
 
         // Calculate required module states via kinematics
         setRawModuleStates(kinematics.toSwerveModuleStates(velocity), true);
-        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
-        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
-                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
-
-        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
-            poseHistory.removeFirst();
-        }
+//        com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
+//        poseHistory.add(new Pose2d(poseEstimate.getX(), poseEstimate.getY(),
+//                new Rotation2d(poseEstimate.headingVec().getX(), poseEstimate.headingVec().getY())));
+//
+//        if (POSE_HISTORY_LIMIT > -1 && poseHistory.size() > POSE_HISTORY_LIMIT) {
+//            poseHistory.removeFirst();
+//        }
     }
 
     /**
@@ -358,7 +358,7 @@ public class SwerveDrive {
     public Pose2d getPose() {
         com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate = odometry.getPoseEstimate();
         return new Pose2d(poseEstimate.getX() * 0.0254, poseEstimate.getY() * 0.0254,
-                new Rotation2d(poseEstimate.headingVec().getX() * 0.0254, poseEstimate.headingVec().getY() * 0.0254));
+                new Rotation2d(poseEstimate.getHeading()));
     }
 
     public com.acmerobotics.roadrunner.geometry.Pose2d getPoseEstimate() {
@@ -388,8 +388,8 @@ public class SwerveDrive {
         com.acmerobotics.roadrunner.geometry.Pose2d velo = odometry.getPoseVelocity();
         if(velo == null)
             return new ChassisSpeeds();
-        return new ChassisSpeeds(velo.getX() * 0.0254, velo.getY() * 0.0254,
-                new Rotation2d(velo.headingVec().getX() * 0.0254, velo.headingVec().getY() * 0.0254).getRadians());
+        return new ChassisSpeeds(velo.getX(), velo.getY(),
+                new Rotation2d(velo.headingVec().getX(), velo.headingVec().getY()).getRadians());
     }
 
     /**
