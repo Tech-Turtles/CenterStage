@@ -15,7 +15,7 @@ public class ArmTest extends RobotHardware {
             left = RobotConfiguration.ARM_LEFT.getAsServo(),
             right = RobotConfiguration.ARM_RIGHT.getAsServo();
 
-    public static RobotConstants.ClawPosition claw = RobotConstants.ClawPosition.OPEN;
+    public static RobotConstants.ClawPosition claw = RobotConstants.ClawPosition.GRAB;
 
     public static double l1 = 0.0, l2 = 0.5, l3 = 0.85, r1 = 0.0, r2 = 0.5, r3 = 0.85;
     public static int state = 1;

@@ -49,7 +49,7 @@ public class PathplannerTest extends RobotHardware {
     boolean finishedDriving = false;
     ElapsedTimer elapsedTimer = new ElapsedTimer();
     boolean useAprilTags = true;
-    boolean hasUpdated = true;
+    boolean hasUpdated = true, tagsInVision = false;
 
     @Override
     public void init() {
@@ -93,6 +93,11 @@ public class PathplannerTest extends RobotHardware {
         swerveDrive.resetOdometry(new Pose2d(0.21, 4.11, Rotation2d.fromDegrees(-90)));
     }
 
+    ElapsedTimer stopTimer = new ElapsedTimer();
+    boolean waitForStop = false;
+    boolean updateFromTags = false;
+    boolean hasUpdatedFromTags = false;
+
     @Override
     public void loop() {
         super.loop();
@@ -102,19 +107,17 @@ public class PathplannerTest extends RobotHardware {
         if(primary.rightBumperOnce())
             useAprilTags = !useAprilTags;
 
-        if (useAprilTags && !hasUpdated) {
+        if (useAprilTags) {
             if (detectionFuture == null || detectionFuture.isDone()) {
                 // Start new detection processing
                 detectionFuture = executorService.submit(this::processDetections);
             }
-//        timingMonitor.checkpoint("DETECTION");
 
             // Apply the latest robot pose if available
             if (latestRobotPose != null) {
                 apriltagPose = latestRobotPose;
                 swerveDrive.resetOdometry(latestRobotPose);
                 latestRobotPose = null;
-                hasUpdated = true;
             }
         }
 
@@ -137,16 +140,35 @@ public class PathplannerTest extends RobotHardware {
         if (!hasRun) {
             elapsedTimer.reset();
             hasUpdated = false;
+            tagsInVision = false;
             hasRun = true;
         }
 
-        double currentTime = elapsedTimer.seconds();
+        if(tagsInVision && !waitForStop && !hasUpdatedFromTags) {
+            stopTimer.reset();
+            waitForStop = true;
+        }
+
+        if(waitForStop) {
+            if(stopTimer.seconds() > 1.0) {
+                waitForStop = false;
+                hasUpdatedFromTags = true;
+                updateFromTags = false;
+            } else if(stopTimer.seconds() > .7) {
+                updateFromTags = true;
+            } else {
+                output.accept(new ChassisSpeeds(0,0,0));
+                return;
+            }
+        }
+
+        double currentTime = hasUpdatedFromTags ? elapsedTimer.seconds() + 1.0 : elapsedTimer.seconds();
         PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
         Pose2d currentPose = poseSupplier.get();
         ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
         output.accept(targetSpeeds);
 
-        if (currentTime > trajectory.getTotalTimeSeconds()) {
+        if (currentTime > trajectory.getTotalTimeSeconds() + 4.0) {
             finishedDriving = true;
             output.accept(new ChassisSpeeds(0,0,0));
         }
@@ -159,16 +181,12 @@ public class PathplannerTest extends RobotHardware {
         }
     }
 
-    private static final Pose2d CAMERA_POSE= new Pose2d(0.0, 8.715, new Rotation2d());
+    private static final Pose2d CAMERA_POSE= new Pose2d(0.0, 8.0, new Rotation2d());
 
     private Pose2d getRobotPoseFromTag(ArrayList<AprilTagDetection> currentDetections) {
         List<Pose2d> backdropPositions = new ArrayList<>();
         for (AprilTagDetection detection : currentDetections) {
             if (detection.metadata != null) {
-//                telemetry.addData("X " + detection.id, (detection.ftcPose.x));
-//                telemetry.addData("Y " + detection.id, (detection.ftcPose.y));
-//                telemetry.addData("Heading " + detection.id, (-detection.ftcPose.yaw));
-
                 Rotation2d heading = Rotation2d.fromDegrees(detection.ftcPose.yaw);
                 double x = detection.ftcPose.x * heading.getCos() - detection.ftcPose.y * heading.getSin();
                 double y = detection.ftcPose.x * heading.getSin() + detection.ftcPose.y * heading.getCos();
@@ -186,14 +204,24 @@ public class PathplannerTest extends RobotHardware {
                         break;
                 }
                 backdropPositions.add(pose);
-
-//                telemetry.addData("Field pos " + detection.id, pose);
             }
         }
 
         Pose2d backdropPosition = backdropPositions.stream().reduce(Pose2d::add).orElse(new Pose2d());
         backdropPosition = backdropPosition.times(1.0 / backdropPositions.size());
 
+        if(backdropPositions.size() < 2) {
+            return null;
+        }
+
+        if(!tagsInVision)
+            tagsInVision = true;
+
+        if(!updateFromTags)
+            return null;
+
+        if(hasUpdatedFromTags)
+            return null;
 
         Pose2d globalTagPosition = new Pose2d();
         Pose2d positionWithOffset = new Pose2d();

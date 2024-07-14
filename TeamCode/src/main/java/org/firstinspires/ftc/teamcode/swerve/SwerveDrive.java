@@ -68,7 +68,7 @@ public class SwerveDrive {
      * rotation)
      */
     public Matrix<N3, N1> visionMeasurementStdDevs = VecBuilder.fill(0.9, 0.9, 0.9);
-    public final ThreeTrackingWheelLocalizer odometry;
+    public final TwoWheelTrackingLocalizer odometry;
     /**
      * Invert odometry readings of drive motor positions, used as a patch for debugging currently.
      */
@@ -112,7 +112,8 @@ public class SwerveDrive {
         this.imu = config.imu;
 
         this.swerveModules = config.modules;
-        this.odometry = new org.firstinspires.ftc.teamcode.swerve.odometry.ThreeTrackingWheelLocalizer();
+        this.odometry = new org.firstinspires.ftc.teamcode.swerve.odometry.TwoWheelTrackingLocalizer();
+        this.odometry.setSupplier(() -> getYaw().getRadians(), () -> getRobotVelocity().omegaRadiansPerSecond);
 //        swerveDrivePoseEstimator =
 //                new SwervePoseEstimator2(
 //                        kinematics,
@@ -145,6 +146,10 @@ public class SwerveDrive {
     public void drive(
             Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop) {
         drive(translation, rotation, fieldRelative, isOpenLoop, false);
+    }
+
+    public void updateIMU() {
+        imu.update();
     }
 
     /**
