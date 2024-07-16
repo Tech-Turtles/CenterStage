@@ -74,7 +74,7 @@ public class PathplannerTest extends RobotHardware {
 
         swerveDrive.resetOdometry(new Pose2d(0.21, 4.11, Rotation2d.fromDegrees(-90)));
 
-        trajectory = new PathPlannerTrajectory(path, currentSpeeds);
+        trajectory = new PathPlannerTrajectory(path, currentSpeeds, poseSupplier.get().getRotation());
         controller.reset(poseSupplier.get(), currentSpeeds);
         elapsedTimer.reset();
     }

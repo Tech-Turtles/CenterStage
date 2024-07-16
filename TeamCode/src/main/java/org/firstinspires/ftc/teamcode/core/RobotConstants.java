@@ -6,6 +6,8 @@ import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.hardware.PwmControl;
 
 import org.firstinspires.ftc.teamcode.swerve.configuration.SwerveModulePhysicalCharacteristics;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
+import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
 
 @Config
 public final class RobotConstants {
@@ -47,6 +49,15 @@ public final class RobotConstants {
         PLACE_PARK,
         SPIKE_PLACE_CYCLE_PARK
     }
+
+    public static final Pose2d BLUE_BACKBOARD_START = new Pose2d(0.22, 3.40, Rotation2d.fromDegrees(180));
+    public static final Pose2d BLUE_CENTER_START = new Pose2d(0.22, 2.15, Rotation2d.fromDegrees(180));
+    public static final Pose2d BLUE_AUDIENCE_START = new Pose2d(0.22, 0.86, Rotation2d.fromDegrees(180));
+
+    public static final Pose2d RED_BACKBOARD_START = new Pose2d(3.43, 3.40, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d RED_CENTER_START = new Pose2d(3.43, 2.15, Rotation2d.fromDegrees(0.0));
+    public static final Pose2d RED_AUDIENCE_START = new Pose2d(3.43, 0.86, Rotation2d.fromDegrees(0.0));
+
 
     // Mechanism Constants
     public static double WRIST_CENTER = 0.52;
@@ -101,7 +112,8 @@ public final class RobotConstants {
         TELEOP_POS(0.8-.07, 0.8-.07),
         MIDDLE(0.6-.14, 0.6-.14),
         BACK_BOARD(0.315, 0.315),
-        SPIKE(0.41-.14 - .3, 0.41-.14 - .3), SLIGHT_POS(0.78, 0.78);
+        SPIKE(0.15, 0.15),
+        SLIGHT_POS(0.78, 0.78);
         private final double leftPos, rightPos;
         ArmPosition(double leftPos, double rightPos) {
             this.leftPos = leftPos;

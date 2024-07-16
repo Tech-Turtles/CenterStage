@@ -140,7 +140,7 @@ public class Vision extends Manual {
                     new GoalEndState(0.0, swerveDrive.getYaw()) // Goal end state. You can set a holonomic rotation here. If using a differential drivetrain, the rotation will have no effect.
             );
 
-            trajectory = new PathPlannerTrajectory(path, swerveDrive.getRobotVelocity());
+            trajectory = new PathPlannerTrajectory(path, swerveDrive.getRobotVelocity(), swerveDrive.getYaw());
             finishedDriving = false;
             hasRun = false;
         }

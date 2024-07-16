@@ -5,6 +5,7 @@ import android.util.Log;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.core.RobotHardware;
+import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerPath;
 import org.firstinspires.ftc.teamcode.utility.pathplanner.path.PathPlannerTrajectory;
 
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class Executive {
     /**
      * Robot state machine, supporting multiple named simultaneous states, expanded by adding to an enum.
      */
-    static public class StateMachine <T_opmode extends RobotHardware> {
+    public static class StateMachine <T_opmode extends RobotHardware> {
 
         private final Map<StateType, StateBase<T_opmode>> stateMap = new HashMap<>();
         private final T_opmode opMode;
@@ -177,7 +178,6 @@ public class Executive {
 
         private boolean initialized = false;
         private boolean deleteRequested = false;
-        protected PathPlannerTrajectory trajectory = null;
 
         public void init(StateMachine<T_opmode> stateMachine) {
             this.stateMachine = stateMachine;
@@ -194,10 +194,6 @@ public class Executive {
 
         public double getTime() {
             return stateTimer.seconds();
-        }
-
-        public PathPlannerTrajectory getTrajectory() {
-            return trajectory;
         }
 
         public void update() {
@@ -223,6 +219,37 @@ public class Executive {
 
         public boolean isDeleteRequested() {
             return deleteRequested;
+        }
+    }
+
+    public static abstract class DrivingStateBase<T_opmode extends RobotHardware> extends StateBase<T_opmode> {
+        protected PathPlannerTrajectory trajectory = null;
+        protected ElapsedTime drivingTimer;
+        private boolean hasRun = false;
+        protected double finishTime = 0.0;
+
+        @Override
+        public void init(StateMachine<T_opmode> stateMachine) {
+            super.init(stateMachine);
+            drivingTimer = new ElapsedTime();
+            hasRun = false;
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
+            if(!hasRun) {
+                drivingTimer.reset();
+                if(trajectory == null)
+                    throw new RuntimeException("Trajectory was null");
+                finishTime = trajectory.getTotalTimeSeconds();
+                hasRun = true;
+            }
+        }
+
+        public PathPlannerTrajectory getTrajectory() {
+            return trajectory;
         }
     }
 }

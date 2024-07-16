@@ -2,16 +2,14 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import android.util.Size;
 
-import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
+import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
+import org.firstinspires.ftc.teamcode.vision.SpikeProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
-import org.firstinspires.ftc.vision.apriltag.AprilTagGameDatabase;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 
 //ToDo (Low Priority) Allow for multiple vision processors to be passed
@@ -49,8 +47,6 @@ public class Webcam extends HardwareDevice {
         // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
         // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
         aprilTag.setDecimation(2);
-
-        visionProcessor = new SpikeDetectionProcessor();
 
         VisionPortal.Builder builder = new VisionPortal.Builder()
                 .setCamera(this.device)

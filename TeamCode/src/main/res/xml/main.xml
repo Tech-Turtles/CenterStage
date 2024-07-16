@@ -37,4 +37,5 @@
     </LynxUsbDevice>
 <!--    <Webcam name="Webcam" serialNumber="3177716F" />-->
     <Webcam name="Webcam" serialNumber="UC762" />
+    <Webcam name="Webcam 2" serialNumber="VendorProduct:vendor=0x045e|product=0x0810|connection=" />
 </Robot>

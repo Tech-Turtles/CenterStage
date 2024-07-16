@@ -406,7 +406,6 @@ public class SwerveDrive {
      */
     public void resetOdometry(Pose2d pose) {
         odometry.setPoseEstimate(new com.acmerobotics.roadrunner.geometry.Pose2d(pose.getX() / 0.0254, pose.getY() / 0.0254, pose.getRotation().getRadians()));
-//        swerveDrivePoseEstimator.resetPosition(getYaw(), getModulePositions(), pose);
     }
 
     /**

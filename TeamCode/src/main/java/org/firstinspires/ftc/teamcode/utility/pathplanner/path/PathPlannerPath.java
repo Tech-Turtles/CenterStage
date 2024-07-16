@@ -28,6 +28,8 @@ public class PathPlannerPath {
     private GoalEndState goalEndState;
     private List<PathPoint> allPoints;
     private boolean reversed;
+    private Rotation2d previewStartingRotation;
+
 
     /**
      * Create a new path planner path
@@ -45,7 +47,8 @@ public class PathPlannerPath {
             List<ConstraintsZone> constraintZones,
             PathConstraints globalConstraints,
             GoalEndState goalEndState,
-            boolean reversed) {
+            boolean reversed,
+            Rotation2d previewStartingRotation) {
         this.bezierPoints = bezierPoints;
         this.rotationTargets = holonomicRotations;
         this.constraintZones = constraintZones;
@@ -53,6 +56,7 @@ public class PathPlannerPath {
         this.goalEndState = goalEndState;
         this.reversed = reversed;
         this.allPoints = createPath(this.bezierPoints, this.rotationTargets, this.constraintZones);
+        this.previewStartingRotation = previewStartingRotation;
 
         precalcValues();
     }
@@ -78,7 +82,8 @@ public class PathPlannerPath {
                 Collections.emptyList(),
                 constraints,
                 goalEndState,
-                reversed);
+                reversed,
+                Rotation2d.fromDegrees(0));
     }
 
     /**
@@ -246,13 +251,24 @@ public class PathPlannerPath {
             constraintZones.add(ConstraintsZone.fromJson((JSONObject) zoneJson));
         }
 
+        Rotation2d previewStartingRotation = Rotation2d.fromDegrees(0);
+        if (pathJson.containsKey("previewStartingState")) {
+            JSONObject previewStartingStateJson = (JSONObject) pathJson.get("previewStartingState");
+            if (previewStartingStateJson != null) {
+                previewStartingRotation =
+                        Rotation2d.fromDegrees(
+                                ((Number) previewStartingStateJson.get("rotation")).doubleValue());
+            }
+        }
+
         return new PathPlannerPath(
                 bezierPoints,
                 rotationTargets,
                 constraintZones,
                 globalConstraints,
                 goalEndState,
-                reversed);
+                reversed,
+                previewStartingRotation);
     }
 
     private static List<Translation2d> bezierPointsFromWaypointsJson(JSONArray waypointsJson) {
@@ -366,7 +382,8 @@ public class PathPlannerPath {
                 }
             }
 
-            allPoints.get(allPoints.size() - 1).holonomicRotation = goalEndState.getRotation();
+            allPoints.get(allPoints.size() - 1).rotationTarget =
+                    new RotationTarget(-1, goalEndState.getRotation(), goalEndState.shouldRotateFast());
             allPoints.get(allPoints.size() - 1).maxV = goalEndState.getVelocity();
         }
     }
@@ -520,7 +537,8 @@ public class PathPlannerPath {
                     Collections.emptyList(),
                     globalConstraints,
                     goalEndState,
-                    reversed);
+                    reversed,
+                    previewStartingRotation);
         } else if ((closestPointIdx == 0 && robotNextControl == null)
                 || (Math.abs(closestDist - startingPose.getTranslation().getDistance(getPoint(0).position))
                 <= 0.25
@@ -556,7 +574,8 @@ public class PathPlannerPath {
                             .collect(Collectors.toList()),
                     globalConstraints,
                     goalEndState,
-                    reversed);
+                    reversed,
+                    previewStartingRotation);
         }
 
         int joinAnchorIdx = numPoints() - 1;
@@ -587,7 +606,8 @@ public class PathPlannerPath {
                     Collections.emptyList(),
                     globalConstraints,
                     goalEndState,
-                    reversed);
+                    reversed,
+                    previewStartingRotation);
         }
 
         int nextWaypointIdx = (int) Math.ceil((joinAnchorIdx + 1) * PathSegment.RESOLUTION);
@@ -693,7 +713,66 @@ public class PathPlannerPath {
                 mappedZones,
                 globalConstraints,
                 goalEndState,
-                reversed);
+                reversed,
+                previewStartingRotation);
+    }
+
+    /**
+     * Generate a trajectory for this path.
+     *
+     * @param startingSpeeds The robot-relative starting speeds.
+     * @param startingRotation The starting rotation of the robot.
+     * @return The generated trajectory.
+     */
+    public PathPlannerTrajectory getTrajectory(
+            ChassisSpeeds startingSpeeds, Rotation2d startingRotation) {
+        return new PathPlannerTrajectory(this, startingSpeeds, startingRotation);
+    }
+
+    /**
+     * Flip a path to the other side of the field, maintaining a global blue alliance origin
+     *
+     * @return The flipped path
+     */
+    public PathPlannerPath flipPath() {
+        List<Translation2d> newBezier =
+                bezierPoints.stream().map(GeometryUtil::flipFieldPosition).collect(Collectors.toList());
+        List<RotationTarget> newRotTargets =
+                rotationTargets.stream()
+                        .map(
+                                (t) ->
+                                        new RotationTarget(
+                                                t.getPosition(),
+                                                GeometryUtil.flipFieldRotation(t.getTarget()),
+                                                t.shouldRotateFast()))
+                        .collect(Collectors.toList());
+        GoalEndState newEndState =
+                new GoalEndState(
+                        goalEndState.getVelocity(),
+                        GeometryUtil.flipFieldRotation(goalEndState.getRotation()),
+                        goalEndState.shouldRotateFast());
+        Rotation2d newPreviewRot = GeometryUtil.flipFieldRotation(previewStartingRotation);
+
+        return new PathPlannerPath(
+                newBezier,
+                newRotTargets,
+                constraintZones,
+                globalConstraints,
+                newEndState,
+                reversed,
+                newPreviewRot);
+    }
+
+    /**
+     * Get a list of poses representing every point in this path. This can be used to display a path
+     * on a field 2d widget, for example.
+     *
+     * @return List of poses for each point in this path
+     */
+    public List<Pose2d> getPathPoses() {
+        return allPoints.stream()
+                .map(p -> new Pose2d(p.position, new Rotation2d()))
+                .collect(Collectors.toList());
     }
 
     /**
