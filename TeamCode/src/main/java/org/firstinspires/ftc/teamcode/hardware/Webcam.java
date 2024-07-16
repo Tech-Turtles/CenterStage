@@ -2,10 +2,11 @@ package org.firstinspires.ftc.teamcode.hardware;
 
 import android.util.Size;
 
+import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
-import org.firstinspires.ftc.teamcode.vision.PropPipeline;
 import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
 import org.firstinspires.ftc.teamcode.vision.SpikeProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
@@ -15,7 +16,7 @@ import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 //ToDo (Low Priority) Allow for multiple vision processors to be passed
 public class Webcam extends HardwareDevice {
 
-    private WebcamName device;
+    private WebcamName device, spikeCamera;
     private VisionPortal visionPortal;
     private VisionProcessor visionProcessor;
     private Size resolution = new Size(640, 480);
@@ -36,6 +37,9 @@ public class Webcam extends HardwareDevice {
 
         this.device = (WebcamName) device;
 
+        CameraName switchableCamera = ClassFactory.getInstance()
+                .getCameraManager().nameForSwitchableCamera(this.device, spikeCamera);
+
         aprilTag = new AprilTagProcessor.Builder()
                 .setLensIntrinsics(549.651, 549.651, 317.108, 236.644)
                 .build();
@@ -49,11 +53,10 @@ public class Webcam extends HardwareDevice {
         aprilTag.setDecimation(2);
 
         VisionPortal.Builder builder = new VisionPortal.Builder()
-                .setCamera(this.device)
+                .setCamera(switchableCamera)
                 .addProcessor(visionProcessor)
                 .setCameraResolution(resolution)
-                .enableLiveView(false)
-//                .setLiveViewContainerId(liveViewContainerId)
+                .enableLiveView(true)
                 .setStreamFormat(streamFormat);
 
         builder.setCameraResolution(new Size(640, 480));
@@ -66,6 +69,10 @@ public class Webcam extends HardwareDevice {
         visionPortal.setProcessorEnabled(aprilTag, false);
 
         setStatus(HardwareStatus.SUCCESS);
+    }
+
+    public void setSpikeCamera(WebcamName spikeCamera) {
+        this.spikeCamera = spikeCamera;
     }
 
     public Webcam configureVisionProcessor(VisionProcessor visionProcessor) {
@@ -97,8 +104,8 @@ public class Webcam extends HardwareDevice {
             visionPortal.setProcessorEnabled(visionProcessor, true);
     }
 
-    public SpikeDetectionProcessor getProcessor() {
-        return (SpikeDetectionProcessor) visionProcessor;
+    public SpikeProcessor getProcessor() {
+        return (SpikeProcessor) visionProcessor;
     }
 
     public AprilTagProcessor getAprilTagProcessor() {
@@ -109,6 +116,28 @@ public class Webcam extends HardwareDevice {
         disableProcessor();
         if(visionPortal != null && !visionPortal.getProcessorEnabled(aprilTag))
             visionPortal.setProcessorEnabled(aprilTag, true);
+    }
+
+    public void disableAprilTagProcessor() {
+        disableProcessor();
+        if(visionPortal != null && visionPortal.getProcessorEnabled(aprilTag))
+            visionPortal.setProcessorEnabled(aprilTag, false);
+    }
+
+    public void enableSpikeCamera() {
+        if(visionPortal != null) {
+            visionPortal.setActiveCamera(spikeCamera);
+            disableAprilTagProcessor();
+            enableProcessor();
+        }
+    }
+
+    public void enableAprilTagCamera() {
+        if(visionPortal != null) {
+            visionPortal.setActiveCamera(device);
+            disableProcessor();
+            enableAprilTagProcessor();
+        }
     }
 
     public void stop() {

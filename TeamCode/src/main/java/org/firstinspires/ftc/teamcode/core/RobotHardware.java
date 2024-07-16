@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Controller;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
@@ -64,6 +65,7 @@ public class RobotHardware extends OpMode {
         telemetry.setDisplayFormat(Telemetry.DisplayFormat.CLASSIC);
         // Get control hub voltage sensor
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+        RobotConfiguration.WEBCAM.getAsWebcam().setSpikeCamera(hardwareMap.get(WebcamName.class, "Webcam 2"));
         // Initialize all hardware devices in RobotConfiguration & ignore errors due to null devices
         for(RobotConfiguration robotConfiguration : RobotConfiguration.values()) {
             HardwareDevice device = robotConfiguration.getAsHardwareDevice();
@@ -73,7 +75,6 @@ public class RobotHardware extends OpMode {
         }
         // Clear hub caches
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
 
         // Initialize swerve configurations and the swerve drive object.
         SwerveModuleConfiguration front_left = new SwerveModuleConfiguration(
@@ -177,7 +178,6 @@ public class RobotHardware extends OpMode {
 //        telemetry.addData("Period Average","%.4f sec", period.getAveragePeriodSec());
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Update controllers
         primary.update();
         secondary.update();
@@ -194,7 +194,6 @@ public class RobotHardware extends OpMode {
         dashboard = null;
         // Clear hub cache
         RobotConfiguration.CONTROL_HUB.getAsExpansionHub().clearBulkCache();
-//        RobotConfiguration.EXPANSION_HUB.getAsExpansionHub().clearBulkCache();
         // Run stop function for certain devices that could continue moving
         for(RobotConfiguration robotConfiguration : RobotConfiguration.values()) {
             HardwareDevice device = robotConfiguration.getAsHardwareDevice();

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmode.teleop;
 
 import android.util.Size;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -11,14 +12,13 @@ import org.firstinspires.ftc.teamcode.vision.SpikeProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 
 @TeleOp(name = "Spike Test")
-public class SpikeTest extends Manual {
+public class SpikeTest extends OpMode {
     private WebcamName spikeCamera;
     private SpikeProcessor spikeProcessor;
     private VisionPortal visionPortal;
 
     @Override
     public void init() {
-        super.init();
         spikeCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
         spikeProcessor = new SpikeProcessor();
 
@@ -36,11 +36,8 @@ public class SpikeTest extends Manual {
 
     @Override
     public void loop() {
-        super.loop();
-
         try {
             telemetry.addData("Spike Position", spikeProcessor.location);
-            packet.put("Spike Position", spikeProcessor.location);
         } catch (Exception ignore) {}
     }
 }
