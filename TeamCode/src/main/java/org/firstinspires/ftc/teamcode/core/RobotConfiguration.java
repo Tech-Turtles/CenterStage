@@ -18,7 +18,6 @@ import org.firstinspires.ftc.teamcode.hardware.Servo;
 import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
-import org.firstinspires.ftc.teamcode.vision.SpikeProcessor;
 
 public enum RobotConfiguration {
     IMU(
@@ -208,7 +207,7 @@ public enum RobotConfiguration {
     WEBCAM(
             new Webcam("Webcam")
             .configureCameraResolution(640, 480)
-            .configureVisionProcessor(new SpikeProcessor())
+            .configureVisionProcessor(new SpikeDetectionProcessor())
     );
 
     private final HardwareDevice device;

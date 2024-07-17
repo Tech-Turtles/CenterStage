@@ -8,7 +8,6 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareStatus;
 import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
-import org.firstinspires.ftc.teamcode.vision.SpikeProcessor;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
@@ -37,8 +36,10 @@ public class Webcam extends HardwareDevice {
 
         this.device = (WebcamName) device;
 
-        CameraName switchableCamera = ClassFactory.getInstance()
-                .getCameraManager().nameForSwitchableCamera(this.device, spikeCamera);
+        visionProcessor = new SpikeDetectionProcessor();
+
+//        CameraName switchableCamera = ClassFactory.getInstance()
+//                .getCameraManager().nameForSwitchableCamera(this.device, spikeCamera);
 
         aprilTag = new AprilTagProcessor.Builder()
                 .setLensIntrinsics(549.651, 549.651, 317.108, 236.644)
@@ -53,13 +54,13 @@ public class Webcam extends HardwareDevice {
         aprilTag.setDecimation(2);
 
         VisionPortal.Builder builder = new VisionPortal.Builder()
-                .setCamera(switchableCamera)
+                .setCamera(this.device)
                 .addProcessor(visionProcessor)
-                .setCameraResolution(resolution)
+//                .setCameraResolution(resolution)
                 .enableLiveView(true)
                 .setStreamFormat(streamFormat);
 
-        builder.setCameraResolution(new Size(640, 480));
+//        builder.setCameraResolution(new Size(640, 480));
 
         // Set and enable the processor.
         builder.addProcessor(aprilTag);
@@ -104,8 +105,8 @@ public class Webcam extends HardwareDevice {
             visionPortal.setProcessorEnabled(visionProcessor, true);
     }
 
-    public SpikeProcessor getProcessor() {
-        return (SpikeProcessor) visionProcessor;
+    public SpikeDetectionProcessor getProcessor() {
+        return (SpikeDetectionProcessor) visionProcessor;
     }
 
     public AprilTagProcessor getAprilTagProcessor() {

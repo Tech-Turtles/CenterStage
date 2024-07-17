@@ -50,9 +50,9 @@ public final class RobotConstants {
         SPIKE_PLACE_CYCLE_PARK
     }
 
-    public static final Pose2d BLUE_BACKBOARD_START = new Pose2d(0.22, 3.40, Rotation2d.fromDegrees(180));
+    public static final Pose2d BLUE_BACKBOARD_START = new Pose2d(0.22, 3.36, Rotation2d.fromDegrees(180));
     public static final Pose2d BLUE_CENTER_START = new Pose2d(0.22, 2.15, Rotation2d.fromDegrees(180));
-    public static final Pose2d BLUE_AUDIENCE_START = new Pose2d(0.22, 0.86, Rotation2d.fromDegrees(180));
+    public static final Pose2d BLUE_AUDIENCE_START = new Pose2d(0.22, 0.82, Rotation2d.fromDegrees(180));
 
     public static final Pose2d RED_BACKBOARD_START = new Pose2d(3.43, 3.40, Rotation2d.fromDegrees(0.0));
     public static final Pose2d RED_CENTER_START = new Pose2d(3.43, 2.15, Rotation2d.fromDegrees(0.0));
@@ -67,7 +67,7 @@ public final class RobotConstants {
         START(0.44),
         DRIVE(0.65),
         INTAKE(.92),
-        STACK(0.84);
+        STACK(0.8);
         private final double position;
         IntakePosition(double position) {
             this.position = position;

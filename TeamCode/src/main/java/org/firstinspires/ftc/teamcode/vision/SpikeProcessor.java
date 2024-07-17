@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.internal.camera.calibration.CameraCalibra
 import org.firstinspires.ftc.vision.VisionProcessor;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
@@ -27,14 +28,14 @@ public class SpikeProcessor implements VisionProcessor {
     private final Size kSize = new Size(5, 5);
     private final Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, kSize);
     private final Mat maskRed = new Mat(), maskBlue = new Mat();
-    public Rect outer = new Rect(100, 200, 100, 100), center  = new Rect(360, 200, 100, 100);
+    public Rect outer = new Rect(10, 275, 100, 100), center  = new Rect(300, 200, 100, 100);
 
     private Rect redRect = new Rect(), blueRect = new Rect();
     private double redMin = 140, blueMin = 160;
 
     private double min = 100,max = 1000000;
     private double horizon = 160;
-    public Mode mode = Mode.BOTH;
+    public static Mode mode = Mode.BLUE;
 
     private Mat submat_outer = new Mat(), submat_center;
 
@@ -71,11 +72,13 @@ public class SpikeProcessor implements VisionProcessor {
             Scalar mean2 = Core.mean(submat_center);
 //            telemetry.addData("Center avg", mean2);
 
-            if(mean1.val[2] > mean2.val[2])
+            if(mean1.val[2] > mean2.val[2]) {
 //                telemetry.addData("Position", "Outer");
                 location = Location.OUTER;
-            else if (mean2.val[2] > blueMin) {
+                Imgproc.circle(frame, new Point(outer.x + outer.width / 2.0, outer.y + outer.height / 2.0), 3, red);
+            } else if (mean2.val[2] > blueMin) {
 //                telemetry.addData("Position", "Center");
+                Imgproc.circle(frame, new Point(center.x + center.width / 2.0, center.y + center.height / 2.0), 3, red);
                 location = Location.CENTER;
             } else {
 //                telemetry.addData("Position", "Not Seen");

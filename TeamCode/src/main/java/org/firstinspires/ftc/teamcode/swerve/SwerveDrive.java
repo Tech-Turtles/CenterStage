@@ -589,6 +589,7 @@ public class SwerveDrive {
      * Update odometry should be run every loop.
      */
     public void updateOdometry() {
+        imu.update();
         // Update odometry
         odometry.update();
 //        swerveDrivePoseEstimator.update(getYaw(), getPitch(), getRoll(), getModulePositions());

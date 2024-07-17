@@ -3,10 +3,11 @@ package org.firstinspires.ftc.teamcode.utility.pathplanner.util;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Rotation2d;
 import org.firstinspires.ftc.teamcode.utility.math.geometry.Translation2d;
+import org.firstinspires.ftc.teamcode.utility.math.util.Units;
 
 /** Utility class for various geometry functions used during generation */
 public class GeometryUtil {
-    private static final double FIELD_LENGTH = 3.66; // meters
+    private static final double FIELD_LENGTH = 3.66 - Units.inchesToMeters(3.0); // meters
 
     /**
      * Flip a field position to the other side of the field, maintaining a blue alliance origin

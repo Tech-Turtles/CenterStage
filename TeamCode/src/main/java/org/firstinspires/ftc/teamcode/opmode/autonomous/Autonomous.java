@@ -9,7 +9,10 @@ import org.firstinspires.ftc.teamcode.core.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
+import org.firstinspires.ftc.teamcode.utility.autonomous.SpikePosition;
 import org.firstinspires.ftc.teamcode.utility.autonomous.StartPosition;
+import org.firstinspires.ftc.teamcode.vision.SpikeDetectionProcessor;
+import org.opencv.core.Rect;
 
 /**
  * Base autonomous class that holds the autonomous OpModes for each starting location.
@@ -74,6 +77,13 @@ public class Autonomous extends RobotHardware {
         super.init();
         robotStateContext = new AutonomousStateContext(this, robotColor, robotStartPos);
         robotStateContext.init();
+
+//        webcam.enableSpikeCamera();
+        webcam.enableProcessor();
+
+
+        webcam.getProcessor().setMode(
+                robotColor.equals(AllianceColor.RED) ? SpikeDetectionProcessor.Mode.RED : SpikeDetectionProcessor.Mode.BLUE);
     }
 
     @Override
@@ -85,6 +95,81 @@ public class Autonomous extends RobotHardware {
         RobotConfiguration.WRIST.getAsServo().setPosition(WRIST_CENTER);
         RobotConfiguration.CLAW_LEFT.getAsServo().setPosition(RobotConstants.ClawPosition.GRAB.getLeftPos());
         RobotConfiguration.CLAW_RIGHT.getAsServo().setPosition(RobotConstants.ClawPosition.GRAB.getRightPos());
+
+//        try {
+//            switch (robotColor) {
+//                case RED:
+//                    switch (robotStartPos) {
+//                        case BACK_BOARD:
+//                        case CENTER:
+//                            switch (webcam.getProcessor().location) {
+//                                case OUTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.RIGHT;
+//                                    break;
+//                                case CENTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.MIDDLE;
+//                                    break;
+//                                default:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.LEFT;
+//                                    break;
+//                            }
+//                            break;
+//                        case AUDIENCE:
+//                            switch (webcam.getProcessor().location) {
+//                                case OUTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.LEFT;
+//                                    break;
+//                                case CENTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.MIDDLE;
+//                                    break;
+//                                default:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.RIGHT;
+//                                    break;
+//                            }
+//                            break;
+//                    }
+//                    break;
+//                case BLUE:
+//                    switch (robotStartPos) {
+//                        case BACK_BOARD:
+//                        case CENTER:
+//                            switch (webcam.getProcessor().location) {
+//                                case OUTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.LEFT;
+//                                    break;
+//                                case CENTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.MIDDLE;
+//                                    break;
+//                                default:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.RIGHT;
+//                                    break;
+//                            }
+//                            break;
+//                        case AUDIENCE:
+//                            switch (webcam.getProcessor().location) {
+//                                case OUTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.RIGHT;
+//                                    break;
+//                                case CENTER:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.MIDDLE;
+//                                    break;
+//                                default:
+//                                    AutonomousStateContext.spikePosition = SpikePosition.LEFT;
+//                                    break;
+//                            }
+//                            break;
+//                    }
+//                    break;
+//            }
+//        } catch (Exception ignore) {}
+    }
+
+    @Override
+    public void start() {
+        super.start();
+//        webcam.enableAprilTagCamera();
+        webcam.disableProcessor();
+        webcam.enableAprilTagProcessor();
     }
 
     @Override
