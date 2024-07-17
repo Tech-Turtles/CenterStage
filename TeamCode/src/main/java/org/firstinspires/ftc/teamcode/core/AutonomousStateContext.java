@@ -94,6 +94,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
     @Override
     public void update() {
+        autonomous.swerveDrive.updateIMU();
         autonomous.swerveDrive.updateOdometry();
         stateMachine.update();
     }

@@ -148,6 +148,10 @@ public class SwerveDrive {
         drive(translation, rotation, fieldRelative, isOpenLoop, false);
     }
 
+    public void updateIMU() {
+        imu.update();
+    }
+
     /**
      * The primary method for controlling the drive-base. Takes a Translation2d and a rotation rate, and calculates and
      * commands module states accordingly. Can use either open-loop or closed-loop velocity control for the wheel
@@ -166,6 +170,8 @@ public class SwerveDrive {
      */
     public void drive(
             Translation2d translation, double rotation, boolean fieldRelative, boolean isOpenLoop, boolean headingCorrection) {
+        if(headingCorrection || fieldRelative)
+            imu.update();
         // Creates a robot-relative ChassisSpeeds object, converting from field-relative speeds if
         // necessary.
         ChassisSpeeds velocity =
@@ -437,7 +443,8 @@ public class SwerveDrive {
      * Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0.
      */
     public void zeroGyro() {
-        imu.setOffset(imu.getRotation());
+        imu.update();
+        imu.setOffset(imu.getRawRotation3d());
         swerveController.lastAngleScalar = 0;
         lastHeadingRadians = 0;
         resetOdometry(new Pose2d(getPose().getTranslation(), new Rotation2d()));
@@ -450,8 +457,8 @@ public class SwerveDrive {
      */
     public Rotation2d getYaw() {
         double rotation = swerveDriveConfiguration.invertedIMU
-                ? imu.getRotation().unaryMinus().getRadians() + Math.PI
-                : imu.getRotation().getRadians();
+                ? imu.getRotation3d().unaryMinus().getX() + Math.PI
+                : imu.getRotation3d().getX();
         return Rotation2d.fromRadians(rotation < 0.0 ? rotation + 2 * Math.PI : rotation);
     }
 
@@ -460,33 +467,33 @@ public class SwerveDrive {
      *
      * @return The heading as a {@link Rotation2d} angle
      */
-//    public Rotation2d getPitch() {
-//        return swerveDriveConfiguration.invertedIMU
-//                ? Rotation2d.fromRadians(imu.getRotation3d().unaryMinus().getY())
-//                : Rotation2d.fromRadians(imu.getRotation3d().getY());
-//    }
+    public Rotation2d getPitch() {
+        return swerveDriveConfiguration.invertedIMU
+                ? Rotation2d.fromRadians(imu.getRotation3d().unaryMinus().getY())
+                : Rotation2d.fromRadians(imu.getRotation3d().getY());
+    }
 
     /**
      * Gets the current roll angle of the robot, as reported by the imu.
      *
      * @return The heading as a {@link Rotation2d} angle
      */
-//    public Rotation2d getRoll() {
-//        return swerveDriveConfiguration.invertedIMU
-//                ? Rotation2d.fromRadians(imu.getRotation3d().unaryMinus().getX())
-//                : Rotation2d.fromRadians(imu.getRotation3d().getX());
-//    }
+    public Rotation2d getRoll() {
+        return swerveDriveConfiguration.invertedIMU
+                ? Rotation2d.fromRadians(imu.getRotation3d().unaryMinus().getX())
+                : Rotation2d.fromRadians(imu.getRotation3d().getX());
+    }
 
     /**
      * Gets the current gyro {@link Rotation3d} of the robot, as reported by the imu.
      *
      * @return The heading as a {@link Rotation3d} angle
      */
-//    public Rotation3d getGyroRotation3d() {
-//        return swerveDriveConfiguration.invertedIMU
-//                ? imu.getRotation3d().unaryMinus()
-//                : imu.getRotation3d();
-//    }
+    public Rotation3d getGyroRotation3d() {
+        return swerveDriveConfiguration.invertedIMU
+                ? imu.getRotation3d().unaryMinus()
+                : imu.getRotation3d();
+    }
 
     /**
      * Gets current acceleration of the robot in m/s/s. If gyro unsupported returns empty.
@@ -600,9 +607,9 @@ public class SwerveDrive {
      *
      * @param gyro expected gyroscope angle.
      */
-//    public void setGyro(Rotation3d gyro) {
-//        imu.setOffset(imu.getRawRotation3d().minus(gyro));
-//    }
+    public void setGyro(Rotation3d gyro) {
+        imu.setOffset(imu.getRawRotation3d().minus(gyro));
+    }
 
     /**
      * Helper function to get the {@link SwerveDrive#swerveController} for the {@link SwerveDrive} which can be used to

@@ -12,7 +12,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.hardware.ContinuousServo;
 import org.firstinspires.ftc.teamcode.hardware.Controller;
-import org.firstinspires.ftc.teamcode.hardware.IMU;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.hardware.Webcam;
 import org.firstinspires.ftc.teamcode.hardware.meta.HardwareDevice;
@@ -206,8 +205,6 @@ public class RobotHardware extends OpMode {
 //                ((Servo) device).disablePWM();
             else if(device instanceof Webcam)
                 ((Webcam) device).stop();
-            else if(device instanceof IMU)
-                ((IMU) device).stop();
         }
     }
 
