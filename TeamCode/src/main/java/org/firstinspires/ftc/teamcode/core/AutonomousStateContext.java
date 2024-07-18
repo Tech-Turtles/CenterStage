@@ -19,6 +19,7 @@ import org.firstinspires.ftc.teamcode.hardware.Encoder;
 import org.firstinspires.ftc.teamcode.hardware.Motor;
 import org.firstinspires.ftc.teamcode.hardware.Servo;
 import org.firstinspires.ftc.teamcode.opmode.autonomous.Autonomous;
+import org.firstinspires.ftc.teamcode.opmode.autonomous.TransferTest;
 import org.firstinspires.ftc.teamcode.utility.autonomous.AllianceColor;
 import org.firstinspires.ftc.teamcode.utility.autonomous.Executive;
 import org.firstinspires.ftc.teamcode.utility.autonomous.SpikePosition;
@@ -604,18 +605,143 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
                 }
 
                 if(hasSetClaw && stateTimer.seconds() > 0.6) {
-                    nextState(StateType.SLIDES, new Slide_Position(100));
                     nextState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.VERTICAL, 0.05));
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
-                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.BOTH));
-                    nextState(StateType.DRIVE, new FarSpikeToGrab());
+                    nextState(StateType.SLIDES, new Slide_Position(10));
+                    nextState(StateType.DRIVE, new FarSpikeToBackBoard());
                 }
             }
         }
     }
 
-    private class FarSpikeToGrab extends Executive.DrivingStateBase<Autonomous> {
-        boolean hasDriven = false, hasSpit = false;
+//    private class FarSpikeToGrab extends Executive.DrivingStateBase<Autonomous> {
+//        boolean hasDriven = false, hasSpit = false;
+//        @Override
+//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+//            super.init(stateMachine);
+//
+//            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+//            PathPlannerPath path;
+//
+//            if(spikePosition.equals(SpikePosition.LEFT))
+//                path = PathPlannerPath.fromPathFile("Blue Right Spike 1 Grab 1 Pixel");
+//            else if (spikePosition.equals(SpikePosition.RIGHT))
+//                path = PathPlannerPath.fromPathFile("stack grab 3");
+//            else
+//                path = PathPlannerPath.fromPathFile("New Path");
+//
+//            if(allianceColor.equals(AllianceColor.RED)) {
+//                path = path.flipPath();
+//            }
+//
+//            trajectory = new PathPlannerTrajectory(path, currentSpeeds, poseSupplier.get().getRotation());
+//
+//            controller.reset(poseSupplier.get(), currentSpeeds);
+//
+//            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+//            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 1.0, 1.0));
+//        }
+//
+//        @Override
+//        public void update() {
+//            super.update();
+//
+//            double currentTime = drivingTimer.seconds();
+//            PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
+//            Pose2d currentPose = poseSupplier.get();
+//            ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+//            output.accept(targetSpeeds);
+//
+//            if (currentTime > finishTime && !hasDriven) {
+//                hasDriven = true;
+//                stateTimer.reset();
+//                output.accept(new ChassisSpeeds(0,0,0));
+//            }
+//
+//            if(hasDriven) {
+//                if(stateTimer.seconds() > 2.0) {
+//                    nextState(StateType.SLIDES, new Slide_Position(90));
+//                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS, 0.1));
+//                    nextState(StateType.DRIVE, new FarGrabToPlace());
+//                } else if(stateTimer.seconds() > 1.0 && !hasSpit) {
+//                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, -0.7));
+//                    hasSpit = true;
+//                }
+//            }
+//        }
+//    }
+//
+//    private class FarGrabToPlace extends Executive.DrivingStateBase<Autonomous> {
+//        boolean bool, bool2, bool3, bool4, bool6;
+//        @Override
+//        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+//            super.init(stateMachine);
+//
+//            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+//            PathPlannerPath path;
+//
+//            if(spikePosition.equals(SpikePosition.LEFT))
+//                path = PathPlannerPath.fromPathFile("Blue Right Place spike 1");
+//            else if (spikePosition.equals(SpikePosition.RIGHT))
+//                path = PathPlannerPath.fromPathFile("Copy of Copy of Blue Right Place spike 3");
+//            else
+//                path = PathPlannerPath.fromPathFile("Copy of Blue Right Place spike 2");
+//
+//            if(allianceColor.equals(AllianceColor.RED)) {
+//                path = path.flipPath();
+//            }
+//
+//            trajectory = new PathPlannerTrajectory(path, currentSpeeds, poseSupplier.get().getRotation());
+//
+//            controller.reset(poseSupplier.get(), currentSpeeds);
+//            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 0.0, 0.5));
+//        }
+//
+//        @Override
+//        public void update() {
+//            super.update();
+//
+//            double currentTime = drivingTimer.seconds();
+//            PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
+//            Pose2d currentPose = poseSupplier.get();
+//            ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+//            output.accept(targetSpeeds);
+//
+//            if(drivingTimer.seconds() > finishTime + 0.5 && !bool) {
+//                nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
+//                stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.DOWN));
+//                bool = true;
+//            } else if(drivingTimer.seconds() > finishTime + 1.0 && !bool2 && bool) {
+//                stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.GRAB, RobotConstants.ClawOrder.BOTH));
+//                bool2 = true;
+//            } else if(drivingTimer.seconds() > finishTime + 1.2 && !bool3 && bool2) {
+////                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
+//                bool3 = true;
+//            } else if(drivingTimer.seconds() > finishTime + 1.5 && !bool4 && bool3) {
+//                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(160));
+//                stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
+//                stateMachine.changeState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.RIGHT_HORIZONTAL, 0.8));
+//                bool4 = true;
+//            } else if(drivingTimer.seconds() > finishTime + 2.0 && !bool6 && bool4) {
+//                stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(60));
+//                stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+//                bool6 = true;
+//
+//                stateTimer.reset();
+//            }
+//
+//            if (currentTime > finishTime) {
+//                output.accept(new ChassisSpeeds(0,0,0));
+//            }
+//
+//            if(bool6 && stateTimer.seconds() > 1.0) {
+//                nextState(StateType.DRIVE, new Stop());
+//            }
+//        }
+//    }
+
+    private class FarSpikeToBackBoard extends Executive.DrivingStateBase<Autonomous> {
+        boolean hasSetArm = false, hasDriven = false, hasSetClaw = false;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -624,11 +750,11 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             PathPlannerPath path;
 
             if(spikePosition.equals(SpikePosition.LEFT))
-                path = PathPlannerPath.fromPathFile("Blue Right Spike 1 Grab 1 Pixel");
+                path = PathPlannerPath.fromPathFile("skip cycle 1");
             else if (spikePosition.equals(SpikePosition.RIGHT))
-                path = PathPlannerPath.fromPathFile("stack grab 3");
+                path = PathPlannerPath.fromPathFile("skip cycle 3");
             else
-                path = PathPlannerPath.fromPathFile("New Path");
+                path = PathPlannerPath.fromPathFile("skip cycle 2");
 
             if(allianceColor.equals(AllianceColor.RED)) {
                 path = path.flipPath();
@@ -639,7 +765,6 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             controller.reset(poseSupplier.get(), currentSpeeds);
 
             nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
-            nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 1.0, 1.0));
         }
 
         @Override
@@ -652,6 +777,12 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
             output.accept(targetSpeeds);
 
+            if(currentTime > finishTime - 1.0 && !hasSetArm) {
+                nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+                nextState(StateType.SLIDES, new Slide_Position(100));
+                hasSetArm = true;
+            }
+
             if (currentTime > finishTime && !hasDriven) {
                 hasDriven = true;
                 stateTimer.reset();
@@ -659,20 +790,25 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             }
 
             if(hasDriven) {
-                if(stateTimer.seconds() > 2.0) {
-                    nextState(StateType.SLIDES, new Slide_Position(90));
+                if(!hasSetClaw && stateTimer.seconds() > 0.3) {
+                    nextState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.OPEN, RobotConstants.ClawOrder.LEFT, 0.1));
+                    hasSetClaw = true;
+                }
+
+                if(hasSetClaw && stateTimer.seconds() > 0.6) {
+                    nextState(StateType.SLIDES, new Slide_Position(80));
+                    nextState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.VERTICAL, 0.15));
                     nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS, 0.1));
-                    nextState(StateType.DRIVE, new FarGrabToPlace());
-                } else if(stateTimer.seconds() > 1.0 && !hasSpit) {
-                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, -0.7));
-                    hasSpit = true;
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0));
+                    nextState(StateType.DRIVE, new FarBackBoardToGrab());
                 }
             }
         }
     }
 
-    private class FarGrabToPlace extends Executive.DrivingStateBase<Autonomous> {
-        boolean bool, bool2, bool3, bool4, bool6;
+    // State to grab from the center
+    private class FarBackBoardToGrab extends Executive.DrivingStateBase<Autonomous> {
+        boolean hasDriven = false, hasSetIntake = false, hasSpit = false;
         @Override
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
@@ -681,11 +817,65 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             PathPlannerPath path;
 
             if(spikePosition.equals(SpikePosition.LEFT))
-                path = PathPlannerPath.fromPathFile("Blue Right Place spike 1");
+                path = PathPlannerPath.fromPathFile("Right Blue 1 center stack grab");
             else if (spikePosition.equals(SpikePosition.RIGHT))
-                path = PathPlannerPath.fromPathFile("Copy of Copy of Blue Right Place spike 3");
+                path = PathPlannerPath.fromPathFile("Copy of Right Blue 3 center stack grab");
             else
-                path = PathPlannerPath.fromPathFile("Copy of Blue Right Place spike 2");
+                path = PathPlannerPath.fromPathFile("Copy of Copy of Right Blue 3 center stack grab");
+
+            if(allianceColor.equals(AllianceColor.RED)) {
+                path = path.flipPath();
+            }
+
+            trajectory = new PathPlannerTrajectory(path, currentSpeeds, poseSupplier.get().getRotation());
+
+            controller.reset(poseSupplier.get(), currentSpeeds);
+
+            nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
+        }
+
+        @Override
+        public void update() {
+            super.update();
+
+            double currentTime = drivingTimer.seconds();
+            PathPlannerTrajectory.State targetState = trajectory.sample(currentTime);
+            Pose2d currentPose = poseSupplier.get();
+            ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
+            output.accept(targetSpeeds);
+
+            if(currentTime > finishTime - 2.0 && !hasSetIntake) {
+                hasSetIntake = true;
+                nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 1.0, 0.0));
+            }
+
+            if (currentTime > finishTime && !hasDriven) {
+                hasDriven = true;
+                stateTimer.reset();
+                output.accept(new ChassisSpeeds(0,0,0));
+            }
+
+            if(hasDriven) {
+                if(stateTimer.seconds() > 1.0) {
+                    nextState(StateType.SLIDES, new Slide_Position(90));
+//                    nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS, 0.1));
+                    nextState(StateType.DRIVE, new FarGrabToPlace());
+                } else if(stateTimer.seconds() > 0.5 && !hasSpit) {
+                    nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, -0.7));
+                    hasSpit = true;
+                }
+            }
+        }
+    }
+
+    private class FarGrabToPlace extends Executive.DrivingStateBase<Autonomous> {
+        boolean hasSetArm = false, bool, bool2, bool3, bool4, bool6;
+        @Override
+        public void init(Executive.StateMachine<Autonomous> stateMachine) {
+            super.init(stateMachine);
+
+            ChassisSpeeds currentSpeeds = speedsSupplier.get();
+            PathPlannerPath path = PathPlannerPath.fromPathFile("center to place");
 
             if(allianceColor.equals(AllianceColor.RED)) {
                 path = path.flipPath();
@@ -695,6 +885,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
 
             controller.reset(poseSupplier.get(), currentSpeeds);
             nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.STACK, 0.0, 0.5));
+            nextState(StateType.SLIDES, new Slide_Position(60));
         }
 
         @Override
@@ -707,22 +898,28 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
             ChassisSpeeds targetSpeeds = controller.calculateRobotRelativeSpeeds(currentPose, targetState);
             output.accept(targetSpeeds);
 
-            if(drivingTimer.seconds() > finishTime + 0.5 && !bool) {
+            if(drivingTimer.seconds() > finishTime - 2.7 && !hasSetArm) {
+                nextState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
+                nextState(StateType.SLIDES, new Slide_Position(20));
+                hasSetArm = true;
+            }
+
+            if(drivingTimer.seconds() > finishTime - 2.2 && !bool) {
                 nextState(StateType.INTAKE, new Intake_Position(RobotConstants.IntakePosition.DRIVE, 0.0, 0.0));
                 stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.DOWN));
                 bool = true;
-            } else if(drivingTimer.seconds() > finishTime + 1.0 && !bool2 && bool) {
+            } else if(drivingTimer.seconds() > finishTime - 1.8 && !bool2 && bool) {
                 stateMachine.changeState(StateType.CLAW, new Claw_Position(RobotConstants.ClawPosition.GRAB, RobotConstants.ClawOrder.BOTH));
                 bool2 = true;
-            } else if(drivingTimer.seconds() > finishTime + 1.2 && !bool3 && bool2) {
+            } else if(drivingTimer.seconds() > finishTime - 1.5 && !bool3 && bool2) {
 //                    stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Speed(-0.8));
                 bool3 = true;
-            } else if(drivingTimer.seconds() > finishTime + 1.5 && !bool4 && bool3) {
+            } else if(drivingTimer.seconds() > finishTime - 1.2 && !bool4 && bool3) {
                 stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(160));
                 stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.TELEOP_POS));
                 stateMachine.changeState(StateType.WRIST, new Wrist_Position(RobotConstants.WristPosition.RIGHT_HORIZONTAL, 0.8));
                 bool4 = true;
-            } else if(drivingTimer.seconds() > finishTime + 2.0 && !bool6 && bool4) {
+            } else if(drivingTimer.seconds() > finishTime - 0.7 && !bool6 && bool4) {
                 stateMachine.changeState(Executive.StateMachine.StateType.SLIDES, new Slide_Position(60));
                 stateMachine.changeState(StateType.ARM, new Arm_Position(RobotConstants.ArmPosition.BACK_BOARD));
                 bool6 = true;
@@ -755,7 +952,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
-    private static class Slide_Position extends Executive.StateBase<Autonomous> {
+    public static class Slide_Position extends Executive.StateBase<Autonomous> {
         private final Motor left = RobotConfiguration.SLIDE_LEFT.getAsMotor(), right = RobotConfiguration.SLIDE_RIGHT.getAsMotor();
         private final Encoder slides = RobotConfiguration.LIFT_ENCODER.getAsEncoder();
         private final double setpoint, delay;
@@ -813,7 +1010,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
-    private static class Claw_Position extends Executive.StateBase<Autonomous> {
+    public static class Claw_Position extends Executive.StateBase<Autonomous> {
         private final RobotConstants.ClawPosition clawPosition;
         private final RobotConstants.ClawOrder order;
         private final double delay;
@@ -850,7 +1047,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
-    private static class Arm_Position extends Executive.StateBase<Autonomous> {
+    public static class Arm_Position extends Executive.StateBase<Autonomous> {
         private final double leftPos, rightPos, delay;
         private final Servo armLeft = ARM_LEFT.getAsServo(), armRight = ARM_RIGHT.getAsServo();
 
@@ -884,7 +1081,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         }
     }
 
-    private static class Wrist_Position extends Executive.StateBase<Autonomous> {
+    public static class Wrist_Position extends Executive.StateBase<Autonomous> {
         private final double pos, delay;
         private final Servo wrist = RobotConfiguration.WRIST.getAsServo();
 
@@ -919,7 +1116,7 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
      * State to control the intake's ramp angle & the intake's motor power.
      * Optional delay in case the state needs to wait for some amount of seconds.
      */
-    private static class Intake_Position extends Executive.StateBase<Autonomous> {
+    public static class Intake_Position extends Executive.StateBase<Autonomous> {
         private final double pos, power, delay;
 
         Intake_Position(RobotConstants.IntakePosition intakePosition, double power) {
