@@ -72,6 +72,24 @@ public class Autonomous extends RobotHardware {
         }
     }
 
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Red Center", group="C")
+    public static class AutoRedCenter extends Autonomous {
+        @Override public void init() {
+            robotColor = AllianceColor.RED;
+            robotStartPos = StartPosition.CENTER;
+            super.init();
+        }
+    }
+
+    @com.qualcomm.robotcore.eventloop.opmode.Autonomous(name="Blue Center", group="C")
+    public static class AutoBlueCenter extends Autonomous {
+        @Override public void init() {
+            robotColor = AllianceColor.BLUE;
+            robotStartPos = StartPosition.CENTER;
+            super.init();
+        }
+    }
+
     @Override
     public void init() {
         super.init();

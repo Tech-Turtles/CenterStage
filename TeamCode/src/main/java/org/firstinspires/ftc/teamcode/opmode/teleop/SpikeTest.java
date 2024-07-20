@@ -21,15 +21,15 @@ public class SpikeTest extends OpMode {
 
     @Override
     public void init() {
-        tagCamera = hardwareMap.get(WebcamName.class, "Webcam");
+//        tagCamera = hardwareMap.get(WebcamName.class, "Webcam");
         spikeCamera = hardwareMap.get(WebcamName.class, "Webcam 2");
         spikeProcessor = new SpikeDetectionProcessor();
 
-        CameraName switchableCamera = ClassFactory.getInstance()
-                .getCameraManager().nameForSwitchableCamera(tagCamera, spikeCamera);
+//        CameraName switchableCamera = ClassFactory.getInstance()
+//                .getCameraManager().nameForSwitchableCamera(tagCamera, spikeCamera);
 
         VisionPortal.Builder builder = new VisionPortal.Builder()
-                .setCamera(switchableCamera)
+                .setCamera(spikeCamera)
                 .addProcessor(spikeProcessor)
                 .enableLiveView(true)
 //                .setLiveViewContainerId(liveViewContainerId)
@@ -42,7 +42,7 @@ public class SpikeTest extends OpMode {
     @Override
     public void start() {
         super.start();
-        visionPortal.setActiveCamera(spikeCamera);
+//        visionPortal.setActiveCamera(spikeCamera);
     }
 
     @Override

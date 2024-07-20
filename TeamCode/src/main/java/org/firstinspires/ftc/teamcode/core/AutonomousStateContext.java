@@ -116,8 +116,6 @@ public class AutonomousStateContext implements Executive.RobotStateMachineContex
         public void init(Executive.StateMachine<Autonomous> stateMachine) {
             super.init(stateMachine);
 
-            startPosition = StartPosition.AUDIENCE;
-
             switch (startPosition) {
                 case AUDIENCE:
                     if(allianceColor.equals(AllianceColor.BLUE))
